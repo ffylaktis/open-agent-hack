@@ -4,6 +4,7 @@ Offline: the read-only guard, strip/limit, and argument validation (no network).
 Live (needs Zetaris): dict rows, SQL errors, condition filter, curated tools."""
 import pytest
 
+from agent.config import SQL_ROW_LIMIT
 from agent.tools_zetaris import (ReadOnlyError, SqlError, _guard, call_tool,
                                  run_sql, search_devices, search_trials)
 
@@ -28,6 +29,12 @@ def test_strip_and_limit():
 def test_strip_preserves_quoted_dashes():
     g = _guard("SELECT nct_id FROM ctgov.trials t WHERE t.title = 'a--b' LIMIT 1")
     assert "'a--b'" in g
+
+
+def test_limit_injected_when_literal_contains_limit():
+    # regression (review finding #4): 'limit' inside a literal must not suppress the injected LIMIT
+    g = _guard("SELECT device_name FROM openfda.neuro_devices WHERE device_name LIKE '%limit%'")
+    assert g.endswith(f"LIMIT {SQL_ROW_LIMIT}"), g
 
 
 @pytest.mark.parametrize("name,args", [("run_sql", {}), ("search_devices", {}), ("bogus_tool", {"x": 1})])

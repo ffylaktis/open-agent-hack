@@ -76,8 +76,8 @@ def _load_sample(path=SAMPLE_PATH):
     return d
 
 
-def run(question, mission=None, stress_claims=None):
-    if SAMPLE_MODE and os.path.exists(SAMPLE_PATH):          # bulletproof demo replay
+def run(question, mission=None, stress_claims=None, allow_sample=True):
+    if allow_sample and SAMPLE_MODE and os.path.exists(SAMPLE_PATH):   # bulletproof demo replay
         return _load_sample()
 
     mission = mission or ("run_" + uuid.uuid4().hex[:8])

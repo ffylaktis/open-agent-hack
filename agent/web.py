@@ -168,7 +168,7 @@ class Handler(BaseHTTPRequestHandler):
             if not live and os.path.exists(SAMPLE_PATH):
                 res = _load_sample()
             else:
-                res = run(q, stress_claims=STRESS)
+                res = run(q, stress_claims=STRESS, allow_sample=False)   # "Run live" always runs live
             self._send(200, json.dumps(_serialize(res)))
         except Exception as e:
             self._send(500, json.dumps({"error": str(e)[:300]}))

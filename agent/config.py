@@ -8,6 +8,8 @@ MAX_SUBQUESTIONS = int(os.environ.get("MAX_SUBQUESTIONS", "4"))
 MAX_CLAIMS = int(os.environ.get("MAX_CLAIMS", "6"))
 # self-consistency votes re-checking a would-be-"supported" claim (2 = unanimous gate, cheaper)
 EVAL_PANEL = int(os.environ.get("EVAL_PANEL", "2"))
+# re-check votes are sampled at this temperature so the panel is INDEPENDENT, not a temp-0 copy
+EVAL_PANEL_TEMPERATURE = float(os.environ.get("EVAL_PANEL_TEMPERATURE", "0.5"))
 RUN_BUDGET_SECONDS = int(os.environ.get("RUN_BUDGET_SECONDS", "300"))
 SQL_ROW_LIMIT = int(os.environ.get("SQL_ROW_LIMIT", "200"))
 SAMPLE_MODE = os.environ.get("SAMPLE_MODE", "0").lower() in ("1", "true", "yes")

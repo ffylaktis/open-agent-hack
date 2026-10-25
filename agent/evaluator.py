@@ -5,7 +5,7 @@ verdict is re-checked by a small self-consistency panel; the claim survives only
 """
 import json
 from agent import llm
-from agent.config import EVAL_PANEL
+from agent.config import EVAL_PANEL, EVAL_PANEL_TEMPERATURE
 
 VERDICT_TOOL = {
     "type": "function",
@@ -30,11 +30,13 @@ EVAL_SYS = (
 )
 
 
-def _vote(user, trace, claim_text):
+def _vote(user, trace, claim_text, temperature=0):
     args, meta = llm.call_structured(
-        [{"role": "system", "content": EVAL_SYS}, {"role": "user", "content": user}], VERDICT_TOOL)
+        [{"role": "system", "content": EVAL_SYS}, {"role": "user", "content": user}],
+        VERDICT_TOOL, temperature=temperature)
     s, r = bool(args.get("supported", False)), (args.get("reason") or "").strip()
-    trace.add("evaluator", "vote", {"claim": claim_text[:60], "supported": s}, meta)  # meta -> telemetry
+    trace.add("evaluator", "vote",
+              {"claim": claim_text[:60], "supported": s, "temp": temperature}, meta)
     return s, r
 
 
@@ -56,9 +58,9 @@ def evaluate(claim, evidence_by_id, trace):
     supported, reason = _vote(user, trace, claim["text"])
     yes = 1 if supported else 0
     n = 1
-    if supported and EVAL_PANEL > 1:               # re-check approvals for self-consistency
+    if supported and EVAL_PANEL > 1:               # re-check approvals with INDEPENDENT samples
         for _ in range(EVAL_PANEL - 1):
-            s, r = _vote(user, trace, claim["text"])
+            s, r = _vote(user, trace, claim["text"], temperature=EVAL_PANEL_TEMPERATURE)
             n += 1
             yes += 1 if s else 0
             if not s:

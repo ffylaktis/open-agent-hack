@@ -66,12 +66,13 @@ def chat(messages, tools=None, temperature=0, think=False, require_meterless=Fal
     raise RuntimeError("No model route available — " + (fallback_reason or "no providers configured"))
 
 
-def call_structured(messages, tool, think=True):
+def call_structured(messages, tool, think=True, temperature=0):
     """Get structured output by offering a single tool and parsing its call (reasoning ON by
     default — these are judgment roles). Falls back to parsing a JSON object from content.
+    temperature>0 yields independent samples (used by the Evaluator self-consistency panel).
     Returns (dict, meta); {} if nothing parseable."""
     name = tool["function"]["name"]
-    msg, meta = chat(messages, tools=[tool], think=think)
+    msg, meta = chat(messages, tools=[tool], think=think, temperature=temperature)
     if msg.tool_calls:
         for tc in msg.tool_calls:
             if tc.function.name == name:

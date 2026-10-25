@@ -59,6 +59,30 @@ def _strip(sql: str) -> str:
     return "".join(out).strip().rstrip(";").strip()
 
 
+def _without_literals(sql: str) -> str:
+    """Return sql with the CONTENTS of single-quoted literals removed, so keyword checks (e.g.
+    LIMIT) can't match text inside a literal like '%limit%'. Quote-aware ('' escape)."""
+    out, i, n, in_str = [], 0, len(sql), False
+    while i < n:
+        ch = sql[i]
+        if in_str:
+            if ch == "'":
+                if i + 1 < n and sql[i + 1] == "'":   # escaped '' inside a literal
+                    i += 2
+                    continue
+                in_str = False
+                out.append("'")
+            i += 1
+        elif ch == "'":
+            in_str = True
+            out.append("'")
+            i += 1
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
 def _guard(sql: str) -> str:
     clean = _strip(sql)
     if not clean:
@@ -68,7 +92,7 @@ def _guard(sql: str) -> str:
     verb = clean.split(None, 1)[0].lower()
     if verb not in _READ_ONLY:
         raise ReadOnlyError(f"read-only only; '{verb}' is not allowed")
-    if verb in ("select", "with") and not re.search(r"\blimit\b", clean, re.I):
+    if verb in ("select", "with") and not re.search(r"\blimit\b", _without_literals(clean), re.I):
         clean = f"{clean} LIMIT {SQL_ROW_LIMIT}"
     return clean
 

@@ -48,7 +48,7 @@ def main():
         runs = []
         for c in cases:
             print(f"[live] running {c['id']} ...", flush=True)
-            res = run(c["question"], stress_claims=c.get("stress_claims") or None)
+            res = run(c["question"], stress_claims=c.get("stress_claims") or None, allow_sample=False)
             runs.append((c, res))
     else:
         if not os.path.exists(SAMPLE_PATH):
