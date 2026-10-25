@@ -89,36 +89,62 @@ def execute_admin(sql: str) -> list:
     return _execute(_strip(sql))
 
 
-# --- curated convenience tools ---
+# --- curated convenience tools (SQL built in one place so provenance always has it) ---
 
-def search_trials(condition: str | None = None, device_only: bool = False, limit: int = 50) -> list:
-    """Trials, optionally filtered to a condition and/or device interventions."""
-    lim = min(limit, SQL_ROW_LIMIT)
-    cond_sql = ""
+def _trials_sql(condition=None, device_only=False, limit=50):
+    lim = min(int(limit or 50), SQL_ROW_LIMIT)
+    cond = ""
     if condition:
-        c = condition.replace("'", "''")
-        cond_sql = f"(lower(concat_ws(' ', t.conditions)) LIKE lower('%{c}%') OR lower(t.title) LIKE lower('%{c}%'))"
+        c = str(condition).replace("'", "''")
+        cond = f"(lower(concat_ws(' ', t.conditions)) LIKE lower('%{c}%') OR lower(t.title) LIKE lower('%{c}%'))"
     if device_only:
         q = ("SELECT t.nct_id, t.title, t.status, i.intervention_name, i.intervention_type "
              "FROM ctgov.trials t JOIN ctgov.interventions i ON t.nct_id = i.nct_id "
              "WHERE i.intervention_type = 'DEVICE'")
-        if cond_sql:
-            q += " AND " + cond_sql
-        return run_sql(q + f" LIMIT {lim}")
+        if cond:
+            q += " AND " + cond
+        return q + f" LIMIT {lim}"
     q = "SELECT nct_id, title, status, lead_sponsor FROM ctgov.trials t"
-    if cond_sql:
-        q += " WHERE " + cond_sql
-    return run_sql(q + f" LIMIT {lim}")
+    if cond:
+        q += " WHERE " + cond
+    return q + f" LIMIT {lim}"
 
 
-def search_devices(term: str, limit: int = 50) -> list:
+def _devices_sql(term, limit=50):
+    safe = str(term).replace("'", "''")
+    lim = min(int(limit or 50), SQL_ROW_LIMIT)
+    return ("SELECT k_number, device_name, applicant, decision_date, specialty "
+            f"FROM openfda.neuro_devices WHERE lower(device_name) LIKE lower('%{safe}%') LIMIT {lim}")
+
+
+def search_trials(condition=None, device_only=False, limit=50) -> list:
+    """Trials, optionally filtered to a condition and/or device interventions."""
+    return run_sql(_trials_sql(condition, device_only, limit))
+
+
+def search_devices(term, limit=50) -> list:
     """FDA-cleared neuromodulation devices (openfda.neuro_devices) whose name matches `term`."""
-    safe = term.replace("'", "''")
-    lim = min(limit, SQL_ROW_LIMIT)
-    return run_sql(
-        "SELECT k_number, device_name, applicant, decision_date, specialty "
-        f"FROM openfda.neuro_devices WHERE lower(device_name) LIKE lower('%{safe}%') LIMIT {lim}"
-    )
+    return run_sql(_devices_sql(term, limit))
+
+
+def call_tool(name: str, args: dict):
+    """Dispatch a model tool-call. Returns (rows, sql). Validates required args;
+    raises ValueError on missing/unknown so the agent can recover instead of crashing."""
+    if name == "run_sql":
+        sql = args.get("sql")
+        if not sql:
+            raise ValueError("run_sql requires a 'sql' argument")
+        guarded = _guard(sql)
+        return _execute(guarded), guarded
+    if name == "search_trials":
+        sql = _trials_sql(args.get("condition"), bool(args.get("device_only")), args.get("limit", 50))
+        return _execute(_guard(sql)), sql
+    if name == "search_devices":
+        if not args.get("term"):
+            raise ValueError("search_devices requires a 'term' argument")
+        sql = _devices_sql(args["term"], args.get("limit", 50))
+        return _execute(_guard(sql)), sql
+    raise ValueError(f"unknown tool '{name}'")
 
 
 # --- tool schemas the model sees ---

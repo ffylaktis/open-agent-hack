@@ -4,7 +4,7 @@ the error back, and writes results into H-MEM as self-describing Evidence (dict 
 """
 import json
 from agent import llm
-from agent.tools_zetaris import DISPATCH, TOOLS, SqlError, ReadOnlyError
+from agent.tools_zetaris import call_tool, TOOLS, SqlError, ReadOnlyError
 from agent.memory import Evidence
 from agent.config import MAX_STEPS
 
@@ -21,8 +21,8 @@ ANALYST_SYS = (
 _ACCEPTS = {"run_sql": {"sql"}, "search_trials": {"condition", "device_only"}, "search_devices": {"term"}}
 
 
-def _source_of(name, args):
-    blob = (str(args.get("sql", "")) + name).lower()
+def _source_of(name, args, sql):
+    blob = (str(sql) + name).lower()
     return "openfda" if ("openfda" in blob or name == "search_devices") else "ctgov"
 
 
@@ -54,28 +54,23 @@ def analyze(subq, store, trace):
             except Exception:
                 args = {}
             args = {k: v for k, v in args.items() if k in _ACCEPTS.get(name, set())}
-            fn = DISPATCH.get(name)
-            if fn is None:                                   # hallucinated tool name — don't crash
-                trace.add("analyst", "tool_error", {"tool": name, "error": "unknown tool"})
-                messages.append({"role": "tool", "tool_call_id": tc.id,
-                                 "content": f"ERROR: unknown tool '{name}'."})
-                continue
             try:
-                rows = fn(**args)
-                trace.add("analyst", "tool_result", {"tool": name, "args": args, "n": len(rows)})
-                messages.append({"role": "tool", "tool_call_id": tc.id,
-                                 "content": json.dumps(rows[:10], default=str)})  # cap context fed back
-                if rows:
-                    ev = store.write(Evidence(
-                        content=(f"Q: {subq['question']} | {name}({args}) -> {len(rows)} rows; "
-                                 f"sample={json.dumps(rows[:3], default=str)[:500]}"),
-                        source=_source_of(name, args),
-                        provenance={"tool": name, "args": args, "sql": args.get("sql")},
-                        tags=_keywords(subq["question"]), entities=_keywords(subq["question"]),
-                        rows=rows))
-                    evidence.append(ev)
-            except (SqlError, ReadOnlyError) as e:
+                rows, sql = call_tool(name, args)            # validated; (rows, exact SQL)
+            except (SqlError, ReadOnlyError, ValueError, TypeError) as e:
                 trace.add("analyst", "tool_error", {"tool": name, "error": str(e)[:200]})
                 messages.append({"role": "tool", "tool_call_id": tc.id,
-                                 "content": f"ERROR: {e}. Fix the statement and retry."})
+                                 "content": f"ERROR: {e}. Fix the call and retry."})
+                continue
+            trace.add("analyst", "tool_result", {"tool": name, "args": args, "n": len(rows), "sql": sql[:120]})
+            messages.append({"role": "tool", "tool_call_id": tc.id,
+                             "content": json.dumps(rows[:10], default=str) if rows else "[]  (0 matching records)"})
+            # ALWAYS record evidence — an empty result is first-class 'absence' evidence that
+            # grounds negative claims (e.g. "no device cleared FOR anorexia").
+            sample = json.dumps(rows[:3], default=str)[:500] if rows else "NONE — 0 matching records"
+            ev = store.write(Evidence(
+                content=f"Q: {subq['question']} | {name}({args}) via SQL[{sql[:90]}] -> {len(rows)} rows; sample={sample}",
+                source=_source_of(name, args, sql),
+                provenance={"tool": name, "args": args, "sql": sql},
+                tags=_keywords(subq["question"]), entities=_keywords(subq["question"]), rows=rows))
+            evidence.append(ev)
     return evidence
