@@ -10,8 +10,9 @@ import os
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.oxml.ns import qn
 from pptx.util import Inches, Pt
 
 INK = RGBColor(0x14, 0x20, 0x2B)
@@ -65,6 +66,19 @@ def _rect(slide, left, top, width, height, color, shape=MSO_SHAPE.RECTANGLE):
     sp.line.fill.background()
     sp.shadow.inherit = False
     return sp
+
+
+def _conn(slide, x1, y1, x2, y2, color, width_pt=2.0, arrow=True):
+    c = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
+    c.line.color.rgb = color
+    c.line.width = Pt(width_pt)
+    if arrow:
+        try:
+            ln = c.line._get_or_add_ln()
+            ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"}))
+        except Exception:
+            pass
+    return c
 
 
 def _footer(slide):
@@ -187,11 +201,13 @@ _bg(s, WHITE)
 _header(s, "Architecture · Technical", "A real agent, not a pipeline")
 labels = ["Planner", "Analyst", "cross_source", "Reporter", "Evaluator"]
 subs = ["decompose", "SQL → evidence", "trialed × cleared", "cite claims", "verify / reject"]
-n, margin, gap, box_h, y = 5, 0.7, 0.42, 1.25, 2.75
+n, margin, gap, box_h, y = 5, 0.7, 0.42, 1.15, 2.5
 total_w = 13.333 - 2 * margin
 box_w = (total_w - (n - 1) * gap) / n
+centers = []
 for i, (lab, sub) in enumerate(zip(labels, subs, strict=True)):
     x = margin + i * (box_w + gap)
+    centers.append(x + box_w / 2)
     hot = lab == "Evaluator"
     sp = _rect(s, x, y, box_w, box_h, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
     if not hot:
@@ -208,13 +224,27 @@ for i, (lab, sub) in enumerate(zip(labels, subs, strict=True)):
     _run(p2, sub, 9.5, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
     if i < n - 1:
         _rect(s, x + box_w + 0.02, y + box_h / 2 - 0.1, gap - 0.04, 0.2, TEAL, shape=MSO_SHAPE.RIGHT_ARROW)
-tf = _box(s, 0.7, 4.5, 11.9, 0.9)
-_run(tf.paragraphs[0], "↩  Feedback loop:  ", 15, GOLD, bold=True)
-_run(tf.paragraphs[0], "the Evaluator bounces any unsupported claim back to the Analyst (≤ MAX_ROUNDS); "
-                       "survivors must pass a self-consistency gate.", 15, INK)
-tf = _box(s, 0.7, 5.5, 11.9, 1.0)
-_run(tf.paragraphs[0], "Specialized roles · separate Nemotron calls · shared H-MEM evidence memory · "
-                       "full trace + signed Meterless receipts.", 14, MUTED)
+
+# the feedback loop (the differentiator) drawn as a REAL return edge: Evaluator -> back to Reporter
+bot, lane = y + box_h, y + box_h + 0.7
+ev_c, rp_c = centers[4], centers[3]
+_conn(s, ev_c, bot, ev_c, lane, GOLD, arrow=False)
+_conn(s, ev_c, lane, rp_c, lane, GOLD, arrow=False)
+_conn(s, rp_c, lane, rp_c, bot, GOLD, arrow=True)
+loop_lines = [
+    (lane + 0.12, GOLD,
+     "✗ unsupported → the Reporter revises & re-cites, then re-evaluates (loops ≤ MAX_ROUNDS)"),
+    (lane + 0.52, TEAL,
+     "✓ the cited answer ships only when every claim passes the Evaluator"),
+]
+for ty, col, txt in loop_lines:
+    t = _box(s, 0.7, ty, 11.9, 0.35)
+    t.paragraphs[0].alignment = PP_ALIGN.CENTER
+    _run(t.paragraphs[0], txt, 13, col, bold=True)
+t = _box(s, 0.7, 5.85, 11.9, 0.9)
+t.paragraphs[0].alignment = PP_ALIGN.CENTER
+_run(t.paragraphs[0], "A cycle, not a line — specialized roles · separate Nemotron calls · shared H-MEM evidence "
+                      "memory · full trace + signed Meterless receipts.", 13, MUTED)
 _footer(s)
 
 # 6 — Cross-source (two columns)

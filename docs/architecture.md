@@ -12,7 +12,7 @@ flowchart TB
     RP["Reporter<br/>draft claims, each with evidence_ids"]
     EV["Evaluator<br/>isolated input: claim + cited evidence only<br/>verdict, default UNSUPPORTED"]
     PL --> AN --> XS --> RP --> EV
-    EV -- "unsupported → bounce back" --> AN
+    EV -- "unsupported → revise" --> RP
     EV -- "all supported" --> FIN(["Cited answer<br/>rejected claims shown dropped"])
   end
 
@@ -60,7 +60,7 @@ flowchart TB
 
 ## Reading it
 - **One request** flows Planner → Analyst → cross_source → Reporter → Evaluator, looping up to `MAX_ROUNDS`.
-- **Feedback loop (the differentiator):** Evaluator bounces any unsupported claim back to the Analyst; only evidence-backed claims survive.
+- **Feedback loop (the differentiator):** Evaluator bounces any unsupported claim back to the Reporter to revise/re-cite; only evidence-backed claims survive.
 - **Every data fetch** is live Lightning SQL over Zetaris (`ctgov.*`, `openfda.*`) through read-only tools.
 - **Evidence** lives in H-MEM (the required Meterless Engine) with mandatory `source`/`provenance`/`confidence`.
 - **Every model call** routes through Meterless → Nemotron, returning a signed receipt (Sponsor-tech + DGX).
