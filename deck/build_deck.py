@@ -377,8 +377,8 @@ S8_BULLETS = [
     ("Zetaris", "— governed SQL data layer; read-only guard; a cross-source join of two disconnected registries."),
     ("Meterless", "— H-MEM evidence engine + Nightshift provider; every model call returns a signed receipt."),
     ("NVIDIA Nemotron", "— pinned reasoning model (nemotron-3.5-lightning-30b-a3b); it does the adjudication."),
-    ("Cursor", "— development environment."),
-    ("Telemetry per run:", "24 Meterless-routed calls · 41,480 tokens · signed receipts."),
+    ("Cursor", "— dev environment; its Composer agent built the /healthz stack-health endpoint."),
+    ("Telemetry per run:", "26 Meterless-routed calls · 46,989 tokens · signed receipts."),
 ]
 if all(os.path.exists(p) for p in (L_ZETARIS, L_METERLESS, L_NVIDIA, L_CURSOR)):
     s = prs.slides.add_slide(BLANK)

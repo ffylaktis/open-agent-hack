@@ -41,9 +41,9 @@ SQL, and **deletes any claim an independent Evaluator can't back**. Stack: **Zet
   (restore with `git clone open-agent-hack-<timestamp>.bundle <dir>`).
 
 ## Remaining (yours)
-- **Cursor** — in progress: genuinely implement a small feature in Cursor (e.g. a `/healthz` endpoint) so
-  the sponsor claim is honest, then update `docs/sponsor-tech.md` with the real usage. *(Was NOT used in the
-  AI build session — all prior work was done via Claude Code. Don't claim Cursor unless genuinely used.)*
+- **Cursor** — ✅ done: Cursor's Composer agent implemented the `/healthz` stack-health endpoint
+  (`agent/web.py`) + tests; `docs/sponsor-tech.md` describes the real usage (commit `96880a0`).
+  All four sponsor techs (Zetaris · Meterless · Nemotron · Cursor) are now genuinely used.
 - Record the demo video (script + SAMPLE replay).
 - Push to GitHub + `git tag v1.0-submission`.
 - Submit on HackOS (declare pre-existing OSS libs: openai / requests / python-dotenv).

@@ -11,7 +11,7 @@ Prep for live Q&A / the submission. Each answer is short and ends with the **rec
 
 ## The money moment (what to demo)
 Hit **⚡ Instant replay** → scroll to the red **Rejected by the Evaluator** panel → it struck out
-*"rTMS is FDA-cleared for anorexia"* with the reason → point to the **telemetry chips** (Meterless ×24,
+*"rTMS is FDA-cleared for anorexia"* with the reason → point to the **telemetry chips** (Meterless ×26,
 signed receipts). That's the "explain why" in ten seconds.
 
 ---
