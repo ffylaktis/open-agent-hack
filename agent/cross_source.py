@@ -34,6 +34,15 @@ def cross_source(condition, store, trace):
         "ctgov", _trials_sql(condition, True, 100), trials, [condition, "trialed", "device"])))
     trace.add("cross_source", "trialed", {"n": len(trials), "modalities": names[:8]})
 
+    if not trials:                                 # zero trials -> nothing to reconcile; don't pull irrelevant devices
+        ev.append(store.write(_mk(
+            f"No device-intervention trials for '{condition}' in this dataset — no modalities to reconcile "
+            f"against FDA clearances.",
+            "ctgov", f"-- cross_source: no device-intervention trials for {condition}", [],
+            [condition, "trialed", "none"])))
+        trace.add("cross_source", "no_modalities", {"condition": condition})
+        return ev
+
     # B — FDA-CLEARED neuro devices matching the trialed modalities (openfda)
     blob = " ".join(names).lower()
     terms = {v for k, v in _MODALITY_MAP.items() if k in blob} or {"transcranial"}

@@ -6,7 +6,7 @@ MAX_SQL_RETRIES = int(os.environ.get("MAX_SQL_RETRIES", "2"))
 MAX_STEPS = int(os.environ.get("MAX_STEPS", "6"))        # per-agent tool-loop cap
 MAX_SUBQUESTIONS = int(os.environ.get("MAX_SUBQUESTIONS", "4"))
 MAX_CLAIMS = int(os.environ.get("MAX_CLAIMS", "6"))
-EVAL_PANEL = int(os.environ.get("EVAL_PANEL", "3"))      # self-consistency votes on would-be-supported claims
+EVAL_PANEL = int(os.environ.get("EVAL_PANEL", "2"))      # self-consistency votes on would-be-supported claims (2 = unanimous, cheaper)
 RUN_BUDGET_SECONDS = int(os.environ.get("RUN_BUDGET_SECONDS", "300"))
 SQL_ROW_LIMIT = int(os.environ.get("SQL_ROW_LIMIT", "200"))
 SAMPLE_MODE = os.environ.get("SAMPLE_MODE", "0").lower() in ("1", "true", "yes")

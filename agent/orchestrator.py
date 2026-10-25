@@ -98,24 +98,36 @@ def run(question, mission=None, stress_claims=None):
     evidence = store.all()
     by_id = {r["id"]: r for r in evidence}
 
-    supported, dropped, feedback = {}, [], None
+    supported, all_dropped, feedback = {}, {}, None
     for rnd in range(MAX_ROUNDS):
         claims = reporter.report(question, evidence, trace, feedback=feedback)
-        verdicts = [evaluator.evaluate(c, by_id, trace) for c in claims]
+        verdicts = []
+        for c in claims:
+            if time.monotonic() - t0 > RUN_BUDGET_SECONDS:   # budget guards evaluate too, not just gather
+                trace.add("orchestrator", "budget_stop", {"phase": "evaluate", "elapsed": round(time.monotonic() - t0)})
+                break
+            verdicts.append(evaluator.evaluate(c, by_id, trace))
         for v in verdicts:
             if v["supported"]:
                 supported[v["claim"]] = v
-        dropped = [v for v in verdicts if not v["supported"]]
-        trace.add("orchestrator", "round", {"round": rnd, "supported": len(supported), "dropped": len(dropped)})
-        if not dropped or time.monotonic() - t0 > RUN_BUDGET_SECONDS:
+                all_dropped.pop(v["claim"], None)            # recovered -> no longer rejected
+            else:
+                all_dropped[v["claim"]] = v                  # track ALL rejections, not just the last round
+        round_dropped = [v for v in verdicts if not v["supported"]]
+        trace.add("orchestrator", "round", {"round": rnd, "supported": len(supported), "dropped": len(round_dropped)})
+        if not round_dropped or time.monotonic() - t0 > RUN_BUDGET_SECONDS:
             break
-        feedback = dropped                                   # revise unsupported claims next round
+        feedback = round_dropped                             # revise unsupported claims next round
 
     for sc in (stress_claims or []):                         # demo: candidate assertions vs ALL evidence
         v = evaluator.evaluate({"text": sc, "evidence_ids": list(by_id)}, by_id, trace)
-        (supported.__setitem__(v["claim"], v) if v["supported"] else dropped.append(v))
+        if v["supported"]:
+            supported[v["claim"]] = v
+        else:
+            all_dropped[v["claim"]] = v
 
     sup = list(supported.values())
+    dropped = [v for k, v in all_dropped.items() if k not in supported]
     res = {"question": question, "mission": mission, "condition": condition,
            "answer": _assemble(question, sup, dropped, by_id),
            "supported": sup, "dropped": dropped, "evidence": evidence,

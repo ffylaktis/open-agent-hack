@@ -30,10 +30,12 @@ EVAL_SYS = (
 )
 
 
-def _vote(user):
-    args, _ = llm.call_structured(
+def _vote(user, trace, claim_text):
+    args, meta = llm.call_structured(
         [{"role": "system", "content": EVAL_SYS}, {"role": "user", "content": user}], VERDICT_TOOL)
-    return bool(args.get("supported", False)), (args.get("reason") or "").strip()
+    s, r = bool(args.get("supported", False)), (args.get("reason") or "").strip()
+    trace.add("evaluator", "vote", {"claim": claim_text[:60], "supported": s}, meta)  # meta -> telemetry
+    return s, r
 
 
 def evaluate(claim, evidence_by_id, trace):
@@ -48,17 +50,17 @@ def evaluate(claim, evidence_by_id, trace):
         for r in cited)
     user = f"CLAIM: {claim['text']}\n\nCITED EVIDENCE:\n{block}\n\nDoes the evidence directly support the claim?"
 
-    supported, reason = _vote(user)
+    supported, reason = _vote(user, trace, claim["text"])
     yes = 1 if supported else 0
     n = 1
     if supported and EVAL_PANEL > 1:               # re-check approvals for self-consistency
         for _ in range(EVAL_PANEL - 1):
-            s, r = _vote(user)
+            s, r = _vote(user, trace, claim["text"])
             n += 1
             yes += 1 if s else 0
             if not s:
                 reason = r or reason
-        supported = yes > n // 2                    # majority
+        supported = yes > n // 2                    # majority (panel=2 -> unanimous)
     trace.add("evaluator", "verdict",
               {"claim": claim["text"][:90], "supported": supported, "votes": f"{yes}/{n}", "reason": reason[:120]})
     return {"claim": claim["text"], "supported": supported, "reason": reason,
