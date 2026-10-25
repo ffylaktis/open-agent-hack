@@ -60,17 +60,28 @@ python -m agent.orchestrator --record            # record a known-good run to da
 # Web UI (zero extra deps — Python stdlib) — question in; cited answer, rejected claims, receipts out
 python -m agent.web                              # -> http://127.0.0.1:7000  (⚡ instant replay, or ▶ run live)
 ```
-Tests (live integration): `python tests/test_tools.py`, `test_memory.py`, `test_analyst.py`, `test_e2e.py`.
+## Dev / quality
+```bash
+ruff check .                      # lint (config in pyproject.toml)
+pytest                            # offline unit tests (guard, H-MEM) — no stack needed
+pytest --run-live                 # + live integration (needs Zetaris + Meterless up)
+python -m evals.run_evals         # grounding scorecard vs the recorded sample (CI-safe)
+python -m evals.run_evals --live  # score fresh live runs across the golden set
+```
+CI (`.github/workflows/ci.yml`) runs ruff + offline pytest + the sample scorecard on every push.
 
 ## Repo layout
 ```
 agent/   orchestrator · planner · analyst · cross_source · reporter · evaluator · memory(H-MEM) · tools_zetaris · llm · trace · config
 data/    *_register.sql recipes + register.py (privileged DDL path) + sample_run.json
-tests/   acceptance tests (tools, memory, analyst, e2e)
+evals/   grounding golden set + scorers + run_evals (sample & live scorecards)
+tests/   pytest — offline (guard, H-MEM) + live-marked integration (tools, analyst, e2e)
 docs/    architecture.md
-PRD.md · DECISIONS.md · HACKATHON.md   # spec, decision log, rules
+pyproject.toml · requirements-dev.txt   # ruff + pytest config, dev tooling
+PRD.md · DECISIONS.md · HACKATHON.md     # spec, decision log, rules
 ```
 
 ## Dependencies
-`openai==3.36.1`, `python-dotenv==1.2.4`, `requests==2.34.2` (see `requirements.txt`). Zetaris + Meterless run as
+Runtime: `openai==3.36.1`, `python-dotenv==1.2.4`, `requests==2.34.2` (`requirements.txt`).
+Dev/quality: `ruff==0.17.2`, `pytest==9.1.1` (`requirements-dev.txt`). Zetaris + Meterless run as
 external services (above). No secrets are committed; `.env` is gitignored.

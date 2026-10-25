@@ -69,7 +69,8 @@ def save_sample(res, path=SAMPLE_PATH):
 
 def _load_sample(path=SAMPLE_PATH):
     d = json.load(open(path, encoding="utf-8"))
-    t = Trace(); t.events = d.get("trace", [])
+    t = Trace()
+    t.events = d.get("trace", [])
     d["trace"] = t
     d["replayed"] = True
     return d

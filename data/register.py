@@ -5,7 +5,6 @@ Reproducible setup: re-running is safe-ish (CREATE will error if the object
 exists; those are reported but not fatal to later statements).
 """
 import sys
-import os
 from dotenv import load_dotenv
 
 load_dotenv()

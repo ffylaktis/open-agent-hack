@@ -15,13 +15,14 @@
 - Agent loop proven end-to-end: Nemotron → run_sql tool-call → Zetaris → answer
 - `smoke_test.py` → 3 PASS (Zetaris web, Zetaris SQL, Nemotron)
 
-**✅ Built + QA-hardened** (15 unit tests + E2E green; ~14 commits)
+**✅ Built + QA-hardened** (ruff-clean · pytest offline+live · eval scorecard · CI; ~16 commits)
 - Full Track-2 agent: Planner → Analyst → cross_source → Reporter → **Evaluator** (feedback loop + self-consistency); ClinicalTrials.gov + openFDA registered in Zetaris; every claim traced to its SQL; negative evidence; unsupported claims rejected.
 - Meterless **H-MEM** engine (evidence memory) + **Nightshift provider route** (signed receipts) + pinned Nemotron.
-- README + sponsor-tech writeup + slide outline + `SAMPLE_MODE` demo replay; resilient (phase-level error handling) + budget/caps.
+- README + sponsor-tech writeup + slide outline + **web UI** + `SAMPLE_MODE` demo replay; resilient (phase-level error handling) + budget/caps.
+- **Quality tooling:** Ruff lint + pytest (offline unit / `--run-live` integration) + an **eval harness** (`evals/`, grounding scorecard) + GitHub Actions CI.
 
 **🔨 Remaining (deadline Oct 27 23:45 UTC)**
-- Build the slide **deck** from `docs/slides-outline.md` · record the demo video (1–4 min) · submit on HackOS (declare pre-existing OSS libs: openai/requests/python-dotenv) · *(optional)* web UI.
+- Build the slide **deck** from `docs/slides-outline.md` · record the demo video (1–4 min) · submit on HackOS (declare pre-existing OSS libs: openai/requests/python-dotenv).
 
 ---
 

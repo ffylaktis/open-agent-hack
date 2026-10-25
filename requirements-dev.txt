@@ -1,0 +1,4 @@
+# Dev / quality tooling (not needed at runtime).
+#   pip install -r requirements-dev.txt
+ruff==0.17.2
+pytest==9.1.1

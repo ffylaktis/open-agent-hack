@@ -5,7 +5,6 @@ read-only verbs only, LIMIT injected on bare SELECT/WITH, qualified names.
 Rows are returned as dicts (column name -> value) using the response `headers`,
 so evidence is self-describing. Query errors (HTTP 400 + {"msg": ...}) raise SqlError.
 """
-import json
 import os
 import re
 import uuid
@@ -37,11 +36,15 @@ def _strip(sql: str) -> str:
             out.append(ch)
             if ch == "'":
                 if i + 1 < n and sql[i + 1] == "'":   # escaped '' inside a literal
-                    out.append("'"); i += 2; continue
+                    out.append("'")
+                    i += 2
+                    continue
                 in_str = False
             i += 1
         elif ch == "'":
-            in_str = True; out.append(ch); i += 1
+            in_str = True
+            out.append(ch)
+            i += 1
         elif ch == "-" and i + 1 < n and sql[i + 1] == "-":        # line comment
             while i < n and sql[i] != "\n":
                 i += 1
@@ -51,7 +54,8 @@ def _strip(sql: str) -> str:
                 i += 1
             i += 2
         else:
-            out.append(ch); i += 1
+            out.append(ch)
+            i += 1
     return "".join(out).strip().rstrip(";").strip()
 
 
@@ -83,7 +87,7 @@ def _execute(sql: str) -> list:
             timeout=60,
         )
     except requests.RequestException as e:                 # network/timeout -> uniform SqlError
-        raise SqlError(f"Zetaris request failed: {str(e)[:200]}")
+        raise SqlError(f"Zetaris request failed: {str(e)[:200]}") from e
     if resp.status_code >= 400:
         try:
             msg = resp.json().get("msg") or resp.text
@@ -94,7 +98,7 @@ def _execute(sql: str) -> list:
     headers = body.get("headers") or []
     data = body.get("data") or []                 # DDL responses may carry no data — that's fine
     if headers:
-        return [dict(zip(headers, row)) for row in data]
+        return [dict(zip(headers, row, strict=False)) for row in data]
     return [{f"c{i}": v for i, v in enumerate(row)} for row in data]
 
 

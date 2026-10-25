@@ -42,8 +42,11 @@ def evaluate(claim, evidence_by_id, trace):
     """claim = {text, evidence_ids}. Returns {claim, supported, reason, evidence_ids, votes}."""
     cited = [evidence_by_id[i] for i in claim["evidence_ids"] if i in evidence_by_id]
     if not cited:
-        trace.add("evaluator", "verdict", {"claim": claim["text"][:90], "supported": False, "reason": "no cited evidence"})
-        return {"claim": claim["text"], "supported": False, "reason": "no cited evidence", "evidence_ids": [], "votes": "0/0"}
+        reason = "no cited evidence"
+        trace.add("evaluator", "verdict",
+                  {"claim": claim["text"][:90], "supported": False, "reason": reason})
+        return {"claim": claim["text"], "supported": False, "reason": reason,
+                "evidence_ids": [], "votes": "0/0"}
 
     block = "\n".join(
         f"- ({r['source']}) {r['content'][:280]} | rows_sample={json.dumps(r.get('rows', [])[:3], default=str)[:280]}"

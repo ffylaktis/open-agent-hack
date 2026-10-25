@@ -68,8 +68,10 @@ def analyze(subq, store, trace):
             # ALWAYS record evidence — an empty result is first-class 'absence' evidence that
             # grounds negative claims (e.g. "no device cleared FOR anorexia").
             sample = json.dumps(rows[:3], default=str)[:500] if rows else "NONE — 0 matching records"
+            content = (f"Q: {subq['question']} | {name}({args}) via SQL[{sql[:90]}] "
+                       f"-> {len(rows)} rows; sample={sample}")
             ev = store.write(Evidence(
-                content=f"Q: {subq['question']} | {name}({args}) via SQL[{sql[:90]}] -> {len(rows)} rows; sample={sample}",
+                content=content,
                 source=_source_of(name, args, sql),
                 provenance={"tool": name, "args": args, "sql": sql},
                 tags=_keywords(subq["question"]), entities=_keywords(subq["question"]), rows=rows))
