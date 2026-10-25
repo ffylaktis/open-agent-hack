@@ -1,4 +1,5 @@
-"""Structured trace — every agent step/verdict/receipt (Technical + the demo's 'show how it reasoned')."""
+"""Structured trace — every agent step/verdict/receipt/tokens (Technical + the demo's
+'show how it reasoned')."""
 import json
 import time
 
@@ -14,6 +15,11 @@ class Trace:
         if meta:
             ev["route"] = meta.get("route")
             ev["receipt_id"] = meta.get("receipt_id")
+            ev["routed_model"] = meta.get("routed_model")
+            usage = meta.get("usage") or {}
+            ev["tokens"] = usage.get("total_tokens")
+            if meta.get("fallback_reason"):
+                ev["fallback_reason"] = meta["fallback_reason"]
         self.events.append(ev)
         return ev
 
@@ -24,5 +30,10 @@ class Trace:
         return s
 
     def summary(self):
-        return [f"{e['step']:>2}. {e['agent']}.{e['action']}" + (f"  [{e['route']}]" if e.get("route") else "")
-                for e in self.events]
+        out = []
+        for e in self.events:
+            tag = f"  [{e['route']}]" if e.get("route") else ""
+            if e.get("fallback_reason"):
+                tag += f" (fallback: {e['fallback_reason']})"
+            out.append(f"{e['step']:>2}. {e['agent']}.{e['action']}{tag}")
+        return out

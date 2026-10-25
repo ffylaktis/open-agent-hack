@@ -1,4 +1,4 @@
-"""Accept test — Step 2: H-MEM write / reject-no-source / cross-run recall / retrieval."""
+"""Accept test — H-MEM: reject no-source, cross-run recall, dedupe, atomic persist."""
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -17,24 +17,37 @@ def check(name, fn):
     except Exception as e:
         print(f"ERROR {name}: {type(e).__name__}: {str(e)[:160]}")
 
+def _ev(content="rTMS trialed in anorexia nervosa", sql="SELECT 1"):
+    return Evidence(content=content, source="ctgov", provenance={"sql": sql},
+                    tags=["rtms", "anorexia"], entities=["rtms"])
+
 def t_reject_no_source():
     try:
         Evidence(content="x", source="", provenance={"a": 1}); assert False, "accepted empty source"
     except ValueError:
         pass
 
-def t_write_and_crossrun_recall():
+def t_crossrun_recall_and_ledger():
     if os.path.exists(TMP):
         os.remove(TMP)
-    a = MemoryStore(path=TMP)                      # session A
-    a.write(Evidence(content="rTMS trialed in anorexia nervosa",
-                     source="ctgov", provenance={"sql": "SELECT ..."},
-                     tags=["rtms", "anorexia"], entities=["rtms"]))
-    b = MemoryStore(path=TMP)                       # session B: fresh instance reloads file
+    MemoryStore(path=TMP).write(_ev())              # session A
+    b = MemoryStore(path=TMP)                        # session B reloads file
     hits = b.retrieve(query="rtms anorexia", tags=["rtms"])
-    assert hits and "rTMS" in hits[0]["content"], f"cross-run recall failed: {hits}"
-    assert b.ledger.entries and b.ledger.entries[0]["op"] == "write", "trust ledger not persisted"
+    assert hits and "rTMS" in hits[0]["content"], f"recall failed: {hits}"
+    assert any(e["op"] == "write" for e in b.ledger.entries), "ledger not persisted"
     os.remove(TMP)
 
-for n, f in [("reject no-source", t_reject_no_source), ("write + cross-run recall + ledger", t_write_and_crossrun_recall)]:
+def t_dedupe():
+    if os.path.exists(TMP):
+        os.remove(TMP)
+    s = MemoryStore(path=TMP)
+    s.write(_ev(sql="SELECT 1"))
+    s.write(_ev(sql="SELECT 1"))                     # identical -> deduped
+    s.write(_ev(sql="SELECT 2"))                     # different -> new
+    assert len(s.records) == 2, f"dedupe failed: {len(s.records)} records"
+    os.remove(TMP)
+
+for n, f in [("reject no-source", t_reject_no_source),
+             ("cross-run recall + ledger", t_crossrun_recall_and_ledger),
+             ("dedupe by (source,sql)", t_dedupe)]:
     check(n, f)

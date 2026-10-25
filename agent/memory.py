@@ -1,9 +1,11 @@
 """H-MEM — the Meterless Engine (focused Python port): canonical evidence record +
-tiered store + retrieval + trust ledger. Per the H-MEM spec, `source` is mandatory —
-a record with no source is rejected by construction. (reference/meterless-hmem/AGENTS.md)
+tiered store + retrieval + trust ledger. `source` + `provenance` are mandatory
+(spec: a record with no source is rejected by construction). Writes are atomic and
+de-duplicated. (reference/meterless-hmem/AGENTS.md)
 """
 import json
 import os
+import sys
 import time
 import uuid
 from dataclasses import dataclass, field, asdict
@@ -14,7 +16,7 @@ from agent.config import HMEM_PATH
 class Evidence:
     content: str
     source: str                      # mandatory ("ctgov" | "openfda")
-    provenance: dict                 # mandatory for new writes: {tool, args, sql}
+    provenance: dict                 # mandatory: {tool, args, sql}
     confidence: float = 1.0
     type: str = "factual"
     layer: str = "working"
@@ -30,9 +32,13 @@ class Evidence:
         if not self.provenance:
             raise ValueError("H-MEM: new writes require `provenance`")
 
+    def dedupe_key(self):
+        p = self.provenance or {}
+        detail = p.get("sql") or json.dumps(p.get("args", {}), sort_keys=True, default=str)
+        return f"{self.source}|{detail}"
+
 
 class TrustLedger:
-    """Append-only audit of every mutation."""
     def __init__(self, entries=None):
         self.entries = entries or []
 
@@ -41,11 +47,12 @@ class TrustLedger:
 
 
 class MemoryStore:
-    """Tiered persistent store (working layer). JSON-backed so recall survives across runs."""
+    """Tiered persistent store (working layer), JSON-backed, atomic writes, de-duplicated."""
     def __init__(self, path=HMEM_PATH):
         self.path = path
         self.records = {}
         self.ledger = TrustLedger()
+        self._keys = {}            # dedupe_key -> id
         self._load()
 
     def _load(self):
@@ -54,18 +61,30 @@ class MemoryStore:
                 data = json.load(open(self.path, encoding="utf-8"))
                 self.records = {r["id"]: r for r in data.get("records", [])}
                 self.ledger = TrustLedger(data.get("ledger", []))
-            except Exception:
-                pass
+                self._keys = {r.get("_key"): r["id"] for r in self.records.values() if r.get("_key")}
+            except Exception as e:                 # do not silently lose memory
+                print(f"[H-MEM] WARNING: could not load {self.path}: {e}", file=sys.stderr)
 
     def _persist(self):
         if not self.path:
             return
         os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
-        json.dump({"records": list(self.records.values()), "ledger": self.ledger.entries},
-                  open(self.path, "w", encoding="utf-8"), indent=2, default=str)
+        tmp = self.path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump({"records": list(self.records.values()), "ledger": self.ledger.entries},
+                      f, indent=2, default=str)
+        os.replace(tmp, self.path)                 # atomic
 
     def write(self, ev: Evidence) -> Evidence:
-        self.records[ev.id] = asdict(ev)
+        key = ev.dedupe_key()
+        if key in self._keys:                      # de-dupe: return the existing record's view
+            existing = self.records[self._keys[key]]
+            self.ledger.record("dedupe", existing["id"], note=key)
+            return ev
+        rec = asdict(ev)
+        rec["_key"] = key
+        self.records[ev.id] = rec
+        self._keys[key] = ev.id
         self.ledger.record("write", ev.id, note=ev.source)
         self._persist()
         return ev
@@ -74,17 +93,14 @@ class MemoryStore:
         return list(self.records.values())
 
     def retrieve(self, query="", tags=None, limit=10):
-        """Keyword + tag/entity ranking (no embeddings — the evidence set is small)."""
+        """Rank by tag/entity + keyword match; confidence only breaks ties. No embeddings."""
         want = set(t.lower() for t in (tags or []))
         words = [w for w in query.lower().split() if len(w) > 3]
         scored = []
         for r in self.records.values():
             have = set(t.lower() for t in r.get("tags", [])) | set(e.lower() for e in r.get("entities", []))
-            score = 2 * len(want & have)
-            content = r.get("content", "").lower()
-            score += sum(1 for w in words if w in content)
-            score += r.get("confidence", 0)
-            if score > 0:
-                scored.append((score, r))
+            match = 2 * len(want & have) + sum(1 for w in words if w in r.get("content", "").lower())
+            if match > 0:                           # require a real match to surface
+                scored.append((match + 0.1 * r.get("confidence", 0), r))
         scored.sort(key=lambda x: -x[0])
         return [r for _, r in scored[:limit]]

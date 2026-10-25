@@ -1,11 +1,11 @@
-"""Accept test — Step 1: tools_zetaris safety + curated tools (hits live Zetaris)."""
+"""Accept test — tools_zetaris: safety, dict rows, condition filter, curated tools (live)."""
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
 
-from agent.tools_zetaris import run_sql, search_trials, search_devices, ReadOnlyError, _guard
+from agent.tools_zetaris import run_sql, search_trials, search_devices, ReadOnlyError, SqlError, _guard
 
 def check(name, fn):
     try:
@@ -16,30 +16,38 @@ def check(name, fn):
         print(f"ERROR {name}: {type(e).__name__}: {str(e)[:160]}")
 
 def t_readonly_blocked():
-    for bad in ["DROP LIGHTNING DATABASE CTGOV_REST", "DELETE FROM ctgov.trials", "SELECT 1; DROP TABLE x"]:
+    for bad in ["DROP LIGHTNING DATABASE CTGOV_REST", "DELETE FROM ctgov.trials",
+                "SELECT 1; DROP TABLE x", "SELECT 1 /* ; */ -- hi\nUNION SELECT 2; DROP x"]:
         try:
             _guard(bad); assert False, f"guard allowed: {bad}"
         except ReadOnlyError:
             pass
 
 def t_strip_and_limit():
-    g = _guard("SELECT nct_id FROM ctgov.trials;")
-    assert not g.endswith(";"), "trailing ; not stripped"
-    assert "LIMIT" in g.upper(), "LIMIT not injected"
+    g = _guard("SELECT nct_id FROM ctgov.trials;  -- trailing comment")
+    assert not g.endswith(";") and "LIMIT" in g.upper(), g
 
-def t_select_runs():
-    rows = run_sql("SELECT COUNT(*) FROM ctgov.trials;")
-    assert rows and str(rows[0][0]) == "100", f"unexpected count: {rows}"
+def t_dict_rows():
+    rows = run_sql("SELECT COUNT(*) AS n FROM ctgov.trials")
+    assert rows and isinstance(rows[0], dict) and str(rows[0]["n"]) == "100", rows
 
-def t_search_trials_device():
-    rows = search_trials(device_only=True, limit=5)
-    assert rows and len(rows) <= 5, f"no device trials: {rows}"
+def t_sql_error_raises():
+    try:
+        run_sql("SELECT * FROM ctgov.nope_not_here"); assert False, "no error raised"
+    except SqlError:
+        pass
 
-def t_search_devices():
+def t_condition_filter():
+    yes = search_trials(condition="anorexia", device_only=True, limit=5)
+    no = search_trials(condition="zzzznotarealcondition", device_only=True, limit=5)
+    assert yes and len(no) == 0, f"filter broken: yes={len(yes)} no={len(no)}"
+    assert "intervention_name" in yes[0], yes[0]
+
+def t_neuro_devices():
     rows = search_devices("transcranial", limit=5)
-    assert isinstance(rows, list), "search_devices did not return a list"
+    assert rows and "device_name" in rows[0], f"no neuro devices: {rows}"
 
-for n, f in [("read-only blocked", t_readonly_blocked), ("strip+limit", t_strip_and_limit),
-             ("SELECT runs", t_select_runs), ("search_trials device", t_search_trials_device),
-             ("search_devices", t_search_devices)]:
+for n, f in [("read-only blocked (+comments)", t_readonly_blocked), ("strip+limit", t_strip_and_limit),
+             ("dict rows + count", t_dict_rows), ("sql error raises", t_sql_error_raises),
+             ("condition filter works", t_condition_filter), ("neuro devices", t_neuro_devices)]:
     check(n, f)

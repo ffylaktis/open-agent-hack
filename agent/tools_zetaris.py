@@ -1,9 +1,11 @@
 """Data-layer tools: safe, read-only access to Zetaris over REST.
 
-Every agent reaches data only through here. Rules enforced (per Zetaris AGENTS.md
-+ PRD safety): one statement per call, no trailing ';', read-only verbs only,
-a LIMIT is injected on bare SELECT/WITH, qualified names like `ctgov.trials`.
+Enforced (Zetaris AGENTS.md + PRD safety): one statement/call, no trailing ';',
+read-only verbs only, LIMIT injected on bare SELECT/WITH, qualified names.
+Rows are returned as dicts (column name -> value) using the response `headers`,
+so evidence is self-describing. Query errors (HTTP 400 + {"msg": ...}) raise SqlError.
 """
+import json
 import os
 import re
 import uuid
@@ -15,26 +17,25 @@ ZETARIS_API_KEY = os.environ.get("ZETARIS_API_KEY", "")
 SQL_ROW_LIMIT = int(os.environ.get("SQL_ROW_LIMIT", "200"))
 
 _READ_ONLY = ("select", "with", "show", "describe", "desc", "explain")
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 
 
 class ReadOnlyError(ValueError):
-    """Raised when a statement is not an allowed read-only command."""
+    """Statement is not an allowed read-only command."""
 
 
 class SqlError(RuntimeError):
-    """Raised when Zetaris rejects/executes-with-error a statement."""
+    """Zetaris rejected/failed the statement."""
 
 
 def _strip(sql: str) -> str:
-    """Remove line comments and surrounding whitespace, drop a single trailing ';'."""
-    no_comments = "\n".join(
-        ln for ln in sql.splitlines() if not ln.strip().startswith("--")
-    )
-    return no_comments.strip().rstrip(";").strip()
+    """Remove block + line comments, trim, drop a single trailing ';'."""
+    s = _BLOCK_COMMENT.sub(" ", sql)
+    s = "\n".join(ln.split("--", 1)[0] for ln in s.splitlines())
+    return s.strip().rstrip(";").strip()
 
 
 def _guard(sql: str) -> str:
-    """Enforce single, read-only statement. Returns the cleaned statement or raises."""
     clean = _strip(sql)
     if not clean:
         raise ReadOnlyError("empty statement")
@@ -43,14 +44,13 @@ def _guard(sql: str) -> str:
     verb = clean.split(None, 1)[0].lower()
     if verb not in _READ_ONLY:
         raise ReadOnlyError(f"read-only only; '{verb}' is not allowed")
-    # inject a LIMIT on bare SELECT/WITH to keep payloads + the source bounded
     if verb in ("select", "with") and not re.search(r"\blimit\b", clean, re.I):
         clean = f"{clean} LIMIT {SQL_ROW_LIMIT}"
     return clean
 
 
 def _execute(sql: str) -> list:
-    response = requests.post(
+    resp = requests.post(
         ZETARIS_REST_URL.rstrip("/") + "/sql-editor/sqls/run",
         headers={
             "Authorization": "Bearer " + ZETARIS_API_KEY,
@@ -61,37 +61,60 @@ def _execute(sql: str) -> list:
         json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": SQL_ROW_LIMIT},
         timeout=60,
     )
-    if response.status_code >= 400:
-        raise SqlError(f"HTTP {response.status_code}: {response.text[:200]}")
-    return response.json().get("data", [])
+    if resp.status_code >= 400:
+        try:
+            msg = resp.json().get("msg") or resp.text
+        except Exception:
+            msg = resp.text
+        raise SqlError(f"HTTP {resp.status_code}: {str(msg)[:300]}")
+    body = resp.json()
+    headers = body.get("headers") or []
+    data = body.get("data") or []                 # DDL responses may carry no data — that's fine
+    if headers:
+        return [dict(zip(headers, row)) for row in data]
+    return [{f"c{i}": v for i, v in enumerate(row)} for row in data]
 
 
 def run_sql(sql: str) -> list:
-    """Run one read-only Lightning SQL statement; return rows. Raises on guard/SQL error."""
+    """Run one read-only Lightning SQL statement; return list[dict]. Raises on guard/SQL error."""
     return _execute(_guard(sql))
 
 
-# --- curated convenience tools (reliable paths the agent can prefer) ---
+def execute_admin(sql: str) -> list:
+    """Privileged path for data registration (DDL). Bypasses the read-only guard —
+    NOT for agent use; only the trusted data-setup scripts call this."""
+    return _execute(_strip(sql))
+
+
+# --- curated convenience tools ---
 
 def search_trials(condition: str | None = None, device_only: bool = False, limit: int = 50) -> list:
-    """Trials for a condition. device_only -> join interventions of type DEVICE."""
+    """Trials, optionally filtered to a condition and/or device interventions."""
     lim = min(limit, SQL_ROW_LIMIT)
+    cond_sql = ""
+    if condition:
+        c = condition.replace("'", "''")
+        cond_sql = f"(lower(concat_ws(' ', t.conditions)) LIKE lower('%{c}%') OR lower(t.title) LIKE lower('%{c}%'))"
     if device_only:
-        return run_sql(
-            "SELECT t.nct_id, t.title, t.status, i.intervention_name "
-            "FROM ctgov.trials t JOIN ctgov.interventions i ON t.nct_id = i.nct_id "
-            f"WHERE i.intervention_type = 'DEVICE' LIMIT {lim}"
-        )
-    return run_sql(f"SELECT nct_id, title, status, lead_sponsor FROM ctgov.trials LIMIT {lim}")
+        q = ("SELECT t.nct_id, t.title, t.status, i.intervention_name, i.intervention_type "
+             "FROM ctgov.trials t JOIN ctgov.interventions i ON t.nct_id = i.nct_id "
+             "WHERE i.intervention_type = 'DEVICE'")
+        if cond_sql:
+            q += " AND " + cond_sql
+        return run_sql(q + f" LIMIT {lim}")
+    q = "SELECT nct_id, title, status, lead_sponsor FROM ctgov.trials t"
+    if cond_sql:
+        q += " WHERE " + cond_sql
+    return run_sql(q + f" LIMIT {lim}")
 
 
 def search_devices(term: str, limit: int = 50) -> list:
-    """openFDA AI device clearances whose device_name matches `term` (case-insensitive)."""
+    """FDA-cleared neuromodulation devices (openfda.neuro_devices) whose name matches `term`."""
     safe = term.replace("'", "''")
     lim = min(limit, SQL_ROW_LIMIT)
     return run_sql(
         "SELECT k_number, device_name, applicant, decision_date, specialty "
-        f"FROM openfda.ai_devices WHERE lower(device_name) LIKE lower('%{safe}%') LIMIT {lim}"
+        f"FROM openfda.neuro_devices WHERE lower(device_name) LIKE lower('%{safe}%') LIMIT {lim}"
     )
 
 
@@ -101,9 +124,9 @@ RUN_SQL_TOOL = {
     "type": "function",
     "function": {
         "name": "run_sql",
-        "description": ("Run ONE read-only Lightning SQL statement (SELECT/SHOW/DESCRIBE) against "
-                        "Zetaris and return rows. Tables: ctgov.trials, ctgov.interventions, openfda.ai_devices. "
-                        "No trailing semicolon."),
+        "description": ("Run ONE read-only Lightning SQL statement (SELECT/SHOW/DESCRIBE) and return rows. "
+                        "Tables: ctgov.trials, ctgov.interventions, openfda.neuro_devices (cleared TMS/neuromod), "
+                        "openfda.ai_devices (cleared AI devices). No trailing semicolon; qualify names."),
         "parameters": {"type": "object", "properties": {"sql": {"type": "string"}}, "required": ["sql"]},
     },
 }
@@ -111,17 +134,16 @@ SEARCH_TRIALS_TOOL = {
     "type": "function",
     "function": {
         "name": "search_trials",
-        "description": "Find clinical trials; set device_only=true for device-intervention trials.",
+        "description": "Find trials; pass condition to filter, device_only=true for device-intervention trials.",
         "parameters": {"type": "object", "properties": {
-            "condition": {"type": "string"},
-            "device_only": {"type": "boolean"}}, "required": []},
+            "condition": {"type": "string"}, "device_only": {"type": "boolean"}}, "required": []},
     },
 }
 SEARCH_DEVICES_TOOL = {
     "type": "function",
     "function": {
         "name": "search_devices",
-        "description": "Find FDA-cleared AI devices whose name matches a term (e.g. 'transcranial', 'heart rate').",
+        "description": "Find FDA-cleared neuromodulation devices by name term (e.g. 'transcranial').",
         "parameters": {"type": "object", "properties": {"term": {"type": "string"}}, "required": ["term"]},
     },
 }

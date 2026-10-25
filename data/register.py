@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-from agent.tools_zetaris import run_sql  # noqa: E402
+from agent.tools_zetaris import execute_admin  # noqa: E402  (privileged DDL path)
 
 
 def statements(path: str):
@@ -25,7 +25,7 @@ def main(path: str):
     for i, stmt in enumerate(statements(path), 1):
         label = " ".join(stmt.split())[:70]
         try:
-            run_sql(stmt)
+            execute_admin(stmt)
             print(f"[{i}] OK    {label}")
         except Exception as e:
             print(f"[{i}] ERROR {label}\n        -> {str(e)[:200]}")
