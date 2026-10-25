@@ -42,18 +42,22 @@ REPORTER_SYS = (
 )
 
 
-def report(question, evidence_records, trace, feedback=None):
+def report(question, evidence_records, trace, feedback=None, already_supported=None):
     """evidence_records: stored dicts (id, source, content, rows). feedback: prior rejected verdicts.
-    Returns [{text, evidence_ids}]."""
+    already_supported: claims already accepted — do not restate them. Returns [{text, evidence_ids}]."""
     block = "\n".join(
         f"[{r['id']}] ({r['source']}) {r['content'][:260]} rows~{json.dumps(r.get('rows', [])[:2], default=str)[:160]}"
         for r in evidence_records)
     user = f"Question: {question}\n\nEvidence:\n{block}\n\n"
+    if already_supported:
+        user += ("These claims are ALREADY ACCEPTED — do NOT repeat or rephrase them, only add genuinely new ones:\n"
+                 + "\n".join(f"- {t}" for t in already_supported) + "\n\n")
     if feedback:
         fb = "\n".join(f"- REJECTED: \"{v['claim']}\" :: {v['reason'][:180]}" for v in feedback)
-        user += ("An auditor REJECTED your previous claims below. Revise: scope each claim to exactly what the "
-                 "evidence supports, fix the cited ids, or drop claims you cannot ground.\n" + fb + "\n\n")
-    user += "Write cited claims now."
+        user += ("An auditor REJECTED these claims. Revise each: scope it to exactly what the evidence supports, "
+                 "fix the cited ids, or drop it if you cannot ground it.\n" + fb + "\n\n")
+    user += ("Write cited claims now." if not (feedback or already_supported)
+             else "Return only NEW or revised claims (not the already-accepted ones).")
     args, meta = llm.call_structured(
         [{"role": "system", "content": REPORTER_SYS}, {"role": "user", "content": user}], REPORT_TOOL)
     valid = {r["id"] for r in evidence_records}

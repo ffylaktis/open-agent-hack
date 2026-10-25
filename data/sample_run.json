@@ -1,161 +1,203 @@
 {
   "question": "What neuromodulation is being trialed for anorexia nervosa, and is any of it FDA-cleared for that use?",
   "condition": "anorexia nervosa",
-  "answer": "Q: What neuromodulation is being trialed for anorexia nervosa, and is any of it FDA-cleared for that use?\n\nANSWER (every claim evidence-backed):\n  \u2022 Clinical trials for anorexia nervosa have evaluated neuromodulation interventions including active tDCS, sham tDCS, continuous theta\u2011burst stimulation, and deep brain stimulation.\n      \u21b3 evidence: ctgov[SELECT t.nct_id, t.title, t.status, i.interventi]\n  \u2022 Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep\u2011brain and transcranial modalities), none reference \u2018anorexia nervosa\u2019 in their record; the cleared devices fall under specialties such as Cardiovascular, Neurology, and Radiology.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n  \u2022 Clinical trials for anorexia nervosa have evaluated neuromodulation trial arms including active tDCS, sham tDCS, continuous theta\u2011burst stimulation, and deep brain stimulation.\n      \u21b3 evidence: ctgov[SELECT t.nct_id, t.title, t.status, i.interventi]\n  \u2022 Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modalities), none mention 'anorexia nervosa'; the cleared devices fall under specialties such as Cardiovascular, Neurology, and Radiology.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n  \u2022 FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System and other devices, as listed among 25 cleared records.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n\nREJECTED by the Evaluator (not supported by evidence):\n  \u2717 No FDA\u2011cleared neuromodulation device or therapy has been approved for the treatment of anorexia nervosa.\n      \u21b3 The cited evidence consists of bounded/openfda searches (a term search for 'anorexia' returning 0 rows, and a review of 25 FDA\u2011cleared neuro\u2011device records limited to specific modalities). Such scoped searches do not constitute an exhaustive survey of all FDA\u2011cleared neuromodulation devices or therapies, and therefore cannot universally support the claim that no FDA\u2011cleared neuromodulation device or therapy has been approved for anorexia nervosa.\n  \u2717 An FDA device search using the term 'anorexia' returned zero rows, indicating no neuromodulation device or therapy has been FDA\u2011cleared for the treatment of anorexia nervosa.\n      \u21b3 The evidence consists of a single openfda search for the term 'anorexia' in the neuro_devic table that returned zero rows. This bounded/scoped search does not universally demonstrate that no neuromodulation device has been FDA\u2011cleared for anorexia nervosa; other search terms, databases, or broader queries could yield different results. The claim over-generalizes from this limited search to a universal negative statement, which the evidence does not directly support.\n  \u2717 rTMS is FDA-cleared to treat anorexia nervosa.\n      \u21b3 The cited evidence contains no FDA clearance for rTMS (or any neuromodulation device) for anorexia nervosa. OpenFDA searches for devices cleared/approved for anorexia nervosa returned 0 rows. Among the 25 FDA-cleared neuro\u2011device records (including transcranial modalities), none reference anorexia nervosa; the devices are cleared for specialties such as Neurology, Cardiovascular, and Radiology. Clinical trial entries list neuromodulation techniques being evaluated, not cleared indications. Therefore the evidence does not directly support the claim that rTMS is FDA\u2011cleared to treat anorexia nervosa.",
+  "answer": "Q: What neuromodulation is being trialed for anorexia nervosa, and is any of it FDA-cleared for that use?\n\nANSWER (every claim evidence-backed):\n  \u2022 Clinical trials have evaluated multiple neuromodulation approaches for anorexia nervosa, including active and sham transcranial direct current stimulation, continuous theta\u2011burst stimulation, and deep brain stimulation.\n      \u21b3 evidence: ctgov[SELECT t.nct_id, t.title, t.status, i.interventi]\n  \u2022 A ClinicalTrials.gov search identified neuromodulation trials in anorexia nervosa, such as NCT07644728 (Sleep Quality and Biomarkers in Adolescent Girls With Anorexia Nervosa), which is not yet recruiting.\n      \u21b3 evidence: ctgov[SELECT t.nct_id, t.title, t.status, i.interventi]\n  \u2022 An openFDA search for neuromodulation devices cleared for the treatment of anorexia nervosa returned zero rows.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n  \u2022 An openFDA search using the term 'anorexia' among neuro\u2011device records returned zero rows.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n  \u2022 An openFDA search using the term 'eating disorder' among neuro\u2011device records returned zero rows.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n  \u2022 Among the 25 FDA\u2011cleared neuro\u2011device records (modalities deep brain and transcranial), none reference 'anorexia nervosa' in their record; the cleared devices fall under specialties Cardiovascular, Neurology, Radiology.\n      \u21b3 evidence: openfda[SELECT k_number, device_name, applicant, decisio]\n\nREJECTED by the Evaluator (not supported by evidence):\n  \u2717 No neuromodulation device or method has received FDA clearance for the treatment of anorexia nervosa.\n      \u21b3 The cited evidence only reports results from a limited search of 25 FDA\u2011cleared neuro\u2011device records in the openfda database, finding no record that mentions anorexia nervosa. The searches (specialty LIKE '%anorexia%' and term 'anorexia') returned zero rows, but this does not constitute an exhaustive examination of all neuromodulation devices or methods that may have received FDA clearance. Because the evidence is partial and the claim is absolute (\"No neuromodulation device or method has received FDA clearance...\"), the evidence does not directly and fully support the claim.\n  \u2717 The FDA\u2011cleared neuromodulation devices (e.g., Brainsway Deep TMS System, k_number DEN170078) are cleared for other specialties (Neurology, Cardiovascular, Radiology) but not for anorexia nervosa.\n      \u21b3 The evidence is a bounded FDA search of 25 cleared neuro\u2011device records; it lists specialties (Neurology, Cardiovascular, Radiology) and shows no record mentions 'anorexia nervosa'. However, this scoped search does not constitute direct evidence that the devices are not cleared for anorexia nervosa, and the claim over\u2011generalizes from a limited set to a universal negative. Therefore the evidence does not directly support the claim.\n  \u2717 An openFDA search for neuromodulation devices cleared for 'anorexia' or 'eating disorder' returned zero rows, indicating no clearance for these indications.\n      \u21b3 The cited evidence only reports that the openFDA searches for the terms 'anorexia' and 'eating disorder' returned zero rows. It does not directly demonstrate that no neuromodulation devices are cleared for those indications outside the search scope; the claim's inference of \"no clearance for these indications\" goes beyond the provided evidence, which is a bounded/scoped search and thus does not support a universal claim of no clearance.\n  \u2717 Among the ClinicalTrials.gov records searched, 24 trial arms have tested neuromodulation interventions for anorexia nervosa, including active and sham tDCS and continuous theta\u2011burst stimulation.\n      \u21b3 The cited evidence lists 24 device\u2011intervention trial arms for anorexia nervosa, but the list includes many non\u2011neuromodulation interventions (e.g., Actigraphy, DEXA, Deep Brain Stimulation). The claim specifically asserts that these 24 trial arms tested neuromodulation interventions, including active/sham tDCS and continuous theta\u2011burst stimulation. The evidence does not demonstrate that all 24 arms are neuromodulation; it over\u2011generalizes a broader set of device trials. Therefore the evidence does not directly support the claim.\n  \u2717 The FDA\u2011cleared Brainsway Deep Transcranial Magnetic Stimulation System (k_number DEN170078) is cleared for other specialties (Neurology, Cardiovascular, Radiology) but its record does not mention anorexia nervosa.\n      \u21b3 The evidence only lists the Brainsway Deep TMS System's specialty as Neurology; it does not show clearance for Cardiovascular or Radiology for this specific device. Additionally, while the evidence states that none of the 25 cleared neuro\u2011device records mention anorexia nervosa, the claim that the device is cleared for other specialties (Neurology, Cardiovascular, Radiology) is not directly supported by the provided data.\n  \u2717 rTMS is FDA-cleared to treat anorexia nervosa.\n      \u21b3 The cited evidence contains no FDA-cleared neuromodulation device indicated for anorexia nervosa. OpenFDA queries for devices cleared for anorexia nervosa or eating disorders return zero rows. The few FDA-cleared transcranial magnetic stimulation devices (e.g., Brainsway DTMS) are cleared for specialties such as Neurology, not anorexia nervosa. Thus the evidence does not directly support the claim that rTMS is FDA-cleared to treat anorexia nervosa.",
   "supported": [
     {
-      "claim": "Clinical trials for anorexia nervosa have evaluated neuromodulation interventions including active tDCS, sham tDCS, continuous theta\u2011burst stimulation, and deep brain stimulation.",
+      "claim": "Clinical trials have evaluated multiple neuromodulation approaches for anorexia nervosa, including active and sham transcranial direct current stimulation, continuous theta\u2011burst stimulation, and deep brain stimulation.",
       "supported": true,
-      "reason": "The cited ClinicalTrials.gov data lists 24 trial\u2011arms for anorexia nervosa that explicitly include 'AN Active tDCS', 'AN Sham tDCS', 'Continuous Theta Burst Stimulation', and 'Deep Brain Stimulation', demonstrating that clinical trials for anorexia nervosa have evaluated these neuromodulation interventions.",
+      "reason": "The cited evidence from ctgov lists trial arms for anorexia nervosa that include AN Active tDCS, AN Sham tDCS, Continuous Theta Burst Stimulation, and Deep Brain Stimulation, directly matching the neuromodulation approaches described in the claim.",
       "evidence_ids": [
-        "ev_c1d4aca0d1"
+        "ev_30524a8525"
       ],
       "votes": "2/2"
     },
     {
-      "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep\u2011brain and transcranial modalities), none reference \u2018anorexia nervosa\u2019 in their record; the cleared devices fall under specialties such as Cardiovascular, Neurology, and Radiology.",
+      "claim": "A ClinicalTrials.gov search identified neuromodulation trials in anorexia nervosa, such as NCT07644728 (Sleep Quality and Biomarkers in Adolescent Girls With Anorexia Nervosa), which is not yet recruiting.",
       "supported": true,
-      "reason": "The cited evidence directly states that among the 25 FDA-cleared neuro-device records (modalities deep brain and transcranial), none reference 'anorexia nervosa' and the devices fall under the specialties Cardiovascular, Neurology, and Radiology, which matches the claim exactly.",
+      "reason": "The cited evidence includes a ClinicalTrials.gov search for neuromodulation interventions in anorexia nervosa (device_only=True) that returns NCT07644728 with status NOT_YET_RECRUITING, directly matching the claim that the trial is not yet recruiting. The evidence also confirms the trial is a neuromodulation/device trial for anorexia nervosa, fully supporting the claim.",
       "evidence_ids": [
-        "ev_82baddb2a8"
+        "ev_3ab2460847"
       ],
       "votes": "2/2"
     },
     {
-      "claim": "Clinical trials for anorexia nervosa have evaluated neuromodulation trial arms including active tDCS, sham tDCS, continuous theta\u2011burst stimulation, and deep brain stimulation.",
+      "claim": "An openFDA search for neuromodulation devices cleared for the treatment of anorexia nervosa returned zero rows.",
       "supported": true,
-      "reason": "The cited ctgov evidence lists trial arms for anorexia nervosa that include 'AN Active tDCS', 'AN Sham tDCS', 'Continuous Theta Burst Stimulation', and 'Deep Brain Stimulation', directly matching the neuromodulation arms specified in the claim. This demonstrates that clinical trials for anorexia nervosa have evaluated these specific trial arms.",
+      "reason": "The cited evidence provides an openFDA query against the neuro_devices table filtering by specialty containing 'anorexia' or 'eat', which returned no rows (rows_sample=[]). This directly demonstrates that the search for neuromodulation devices cleared for the treatment of anorexia nervosa returned zero rows, matching the claim.",
       "evidence_ids": [
-        "ev_c1d4aca0d1"
+        "ev_f3032dca0e"
       ],
       "votes": "2/2"
     },
     {
-      "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modalities), none mention 'anorexia nervosa'; the cleared devices fall under specialties such as Cardiovascular, Neurology, and Radiology.",
+      "claim": "An openFDA search using the term 'anorexia' among neuro\u2011device records returned zero rows.",
       "supported": true,
-      "reason": "The cited evidence directly states that among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modalities), none reference 'anorexia nervosa' and that the devices fall under the specialties Cardiovascular, Neurology, and Radiology, which matches the claim exactly.",
+      "reason": "The cited evidence shows an openFDA search for 'anorexia' among neuro-device records returned zero rows, which directly matches the claim.",
       "evidence_ids": [
-        "ev_82baddb2a8"
+        "ev_f2e67627b6"
       ],
       "votes": "2/2"
     },
     {
-      "claim": "FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System and other devices, as listed among 25 cleared records.",
+      "claim": "An openFDA search using the term 'eating disorder' among neuro\u2011device records returned zero rows.",
       "supported": true,
-      "reason": "The evidence from openfda reports 25 FDA\u2011cleared transcranial neuro devices and lists the Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System as one example, directly confirming the claim that the Brainsway device is among the cleared records and that other devices are also included.",
+      "reason": "The cited evidence explicitly reports that the openFDA search using the term 'eating disorder' among neuro\u2011device records returned 0 rows, which directly matches the claim.",
       "evidence_ids": [
-        "ev_31c8af7e28"
+        "ev_112bcf4c5e"
+      ],
+      "votes": "2/2"
+    },
+    {
+      "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (modalities deep brain and transcranial), none reference 'anorexia nervosa' in their record; the cleared devices fall under specialties Cardiovascular, Neurology, Radiology.",
+      "supported": true,
+      "reason": "The cited evidence explicitly states that among the 25 FDA-cleared neuro-device records (modalities deep brain and transcranial), none reference 'anorexia nervosa' and the cleared devices fall under the specialties Cardiovascular, Neurology, Radiology, which directly matches the claim.",
+      "evidence_ids": [
+        "ev_dfff8d7289"
       ],
       "votes": "2/2"
     }
   ],
   "dropped": [
     {
-      "claim": "No FDA\u2011cleared neuromodulation device or therapy has been approved for the treatment of anorexia nervosa.",
+      "claim": "No neuromodulation device or method has received FDA clearance for the treatment of anorexia nervosa.",
       "supported": false,
-      "reason": "The cited evidence consists of bounded/openfda searches (a term search for 'anorexia' returning 0 rows, and a review of 25 FDA\u2011cleared neuro\u2011device records limited to specific modalities). Such scoped searches do not constitute an exhaustive survey of all FDA\u2011cleared neuromodulation devices or therapies, and therefore cannot universally support the claim that no FDA\u2011cleared neuromodulation device or therapy has been approved for anorexia nervosa.",
+      "reason": "The cited evidence only reports results from a limited search of 25 FDA\u2011cleared neuro\u2011device records in the openfda database, finding no record that mentions anorexia nervosa. The searches (specialty LIKE '%anorexia%' and term 'anorexia') returned zero rows, but this does not constitute an exhaustive examination of all neuromodulation devices or methods that may have received FDA clearance. Because the evidence is partial and the claim is absolute (\"No neuromodulation device or method has received FDA clearance...\"), the evidence does not directly and fully support the claim.",
       "evidence_ids": [
-        "ev_5368dd5697",
-        "ev_82baddb2a8"
+        "ev_f3032dca0e",
+        "ev_f2e67627b6",
+        "ev_dfff8d7289"
+      ],
+      "votes": "1/2"
+    },
+    {
+      "claim": "The FDA\u2011cleared neuromodulation devices (e.g., Brainsway Deep TMS System, k_number DEN170078) are cleared for other specialties (Neurology, Cardiovascular, Radiology) but not for anorexia nervosa.",
+      "supported": false,
+      "reason": "The evidence is a bounded FDA search of 25 cleared neuro\u2011device records; it lists specialties (Neurology, Cardiovascular, Radiology) and shows no record mentions 'anorexia nervosa'. However, this scoped search does not constitute direct evidence that the devices are not cleared for anorexia nervosa, and the claim over\u2011generalizes from a limited set to a universal negative. Therefore the evidence does not directly support the claim.",
+      "evidence_ids": [
+        "ev_f24756baa5",
+        "ev_dfff8d7289"
       ],
       "votes": "0/1"
     },
     {
-      "claim": "An FDA device search using the term 'anorexia' returned zero rows, indicating no neuromodulation device or therapy has been FDA\u2011cleared for the treatment of anorexia nervosa.",
+      "claim": "An openFDA search for neuromodulation devices cleared for 'anorexia' or 'eating disorder' returned zero rows, indicating no clearance for these indications.",
       "supported": false,
-      "reason": "The evidence consists of a single openfda search for the term 'anorexia' in the neuro_devic table that returned zero rows. This bounded/scoped search does not universally demonstrate that no neuromodulation device has been FDA\u2011cleared for anorexia nervosa; other search terms, databases, or broader queries could yield different results. The claim over-generalizes from this limited search to a universal negative statement, which the evidence does not directly support.",
+      "reason": "The cited evidence only reports that the openFDA searches for the terms 'anorexia' and 'eating disorder' returned zero rows. It does not directly demonstrate that no neuromodulation devices are cleared for those indications outside the search scope; the claim's inference of \"no clearance for these indications\" goes beyond the provided evidence, which is a bounded/scoped search and thus does not support a universal claim of no clearance.",
       "evidence_ids": [
-        "ev_5368dd5697"
+        "ev_f2e67627b6",
+        "ev_112bcf4c5e"
+      ],
+      "votes": "1/2"
+    },
+    {
+      "claim": "Among the ClinicalTrials.gov records searched, 24 trial arms have tested neuromodulation interventions for anorexia nervosa, including active and sham tDCS and continuous theta\u2011burst stimulation.",
+      "supported": false,
+      "reason": "The cited evidence lists 24 device\u2011intervention trial arms for anorexia nervosa, but the list includes many non\u2011neuromodulation interventions (e.g., Actigraphy, DEXA, Deep Brain Stimulation). The claim specifically asserts that these 24 trial arms tested neuromodulation interventions, including active/sham tDCS and continuous theta\u2011burst stimulation. The evidence does not demonstrate that all 24 arms are neuromodulation; it over\u2011generalizes a broader set of device trials. Therefore the evidence does not directly support the claim.",
+      "evidence_ids": [
+        "ev_30524a8525",
+        "ev_3ab2460847"
+      ],
+      "votes": "0/1"
+    },
+    {
+      "claim": "The FDA\u2011cleared Brainsway Deep Transcranial Magnetic Stimulation System (k_number DEN170078) is cleared for other specialties (Neurology, Cardiovascular, Radiology) but its record does not mention anorexia nervosa.",
+      "supported": false,
+      "reason": "The evidence only lists the Brainsway Deep TMS System's specialty as Neurology; it does not show clearance for Cardiovascular or Radiology for this specific device. Additionally, while the evidence states that none of the 25 cleared neuro\u2011device records mention anorexia nervosa, the claim that the device is cleared for other specialties (Neurology, Cardiovascular, Radiology) is not directly supported by the provided data.",
+      "evidence_ids": [
+        "ev_f6a307c9c1",
+        "ev_f24756baa5",
+        "ev_dfff8d7289"
       ],
       "votes": "0/1"
     },
     {
       "claim": "rTMS is FDA-cleared to treat anorexia nervosa.",
       "supported": false,
-      "reason": "The cited evidence contains no FDA clearance for rTMS (or any neuromodulation device) for anorexia nervosa. OpenFDA searches for devices cleared/approved for anorexia nervosa returned 0 rows. Among the 25 FDA-cleared neuro\u2011device records (including transcranial modalities), none reference anorexia nervosa; the devices are cleared for specialties such as Neurology, Cardiovascular, and Radiology. Clinical trial entries list neuromodulation techniques being evaluated, not cleared indications. Therefore the evidence does not directly support the claim that rTMS is FDA\u2011cleared to treat anorexia nervosa.",
+      "reason": "The cited evidence contains no FDA-cleared neuromodulation device indicated for anorexia nervosa. OpenFDA queries for devices cleared for anorexia nervosa or eating disorders return zero rows. The few FDA-cleared transcranial magnetic stimulation devices (e.g., Brainsway DTMS) are cleared for specialties such as Neurology, not anorexia nervosa. Thus the evidence does not directly support the claim that rTMS is FDA-cleared to treat anorexia nervosa.",
       "evidence_ids": [
-        "ev_553273ea3c",
-        "ev_5368dd5697",
-        "ev_a1d773ee85",
-        "ev_22402b4526",
-        "ev_7df1fa3e36",
-        "ev_33a6d3998b",
-        "ev_c1d4aca0d1",
-        "ev_7e333aff72",
-        "ev_31c8af7e28",
-        "ev_82baddb2a8"
+        "ev_3ab2460847",
+        "ev_f3032dca0e",
+        "ev_f2e67627b6",
+        "ev_112bcf4c5e",
+        "ev_f6a307c9c1",
+        "ev_af318f35fe",
+        "ev_30524a8525",
+        "ev_19919d63d6",
+        "ev_f24756baa5",
+        "ev_dfff8d7289"
       ],
       "votes": "0/1"
     }
   ],
   "telemetry": {
     "routes": {
-      "meterless": 24
+      "meterless": 31
     },
-    "total_tokens": 39609,
+    "total_tokens": 46149,
     "receipts": [
-      "rcpt_req_s3g8vebs",
-      "rcpt_req_dit3rz0w",
-      "rcpt_req_ei95hmu5",
-      "rcpt_req_j0wzwtd1",
-      "rcpt_req_1gltkybc"
+      "rcpt_req_ix05dpt8",
+      "rcpt_req_5a8fs1ny",
+      "rcpt_req_amysjn1g",
+      "rcpt_req_bh0i9ukt",
+      "rcpt_req_otktqefu"
     ]
   },
   "evidence": [
     {
-      "id": "ev_553273ea3c",
+      "id": "ev_3ab2460847",
       "source": "ctgov",
-      "content": "Q: What neuromodulation techniques (e.g., transcranial magnetic stimulation, deep brain stimulation, vagus nerve stimulation) are being evaluated in clinical trials for anorexia nervosa? | search_trials({'device_only': True, 'condition': 'anorexia nervosa'}) via SQL[SELECT t.nct_id, t.title, t.status, i.intervention_name, i.intervention_type FROM ctgov.tr] -> 24 rows; sample=[{\"nct_id\": \"NCT07644728\", \"title\": \"Sleep Quality and Biomarkers in Adolescent Girls With Anorexia Nervosa\", \"status\": \"NOT_YET_RECRUITING\", \"intervention_name\": \"Home Polysomnography - NOX A1\", \"intervention_type\": \"DEVICE\"}, {\"nct_id\": \"NCT03984344\", \"title\": \"Theta Burst Stimulation in Anorexia Nervosa\", \"status\": \"UNKNOWN\", \"intervention_name\": \"Sham Theta Burst Stimulation\", \"intervention_type\": \"DEVICE\"}, {\"nct_id\": \"NCT03984344\", \"title\": \"Theta Burst Stimulation in Anorexia Nervosa\", \"s"
+      "content": "Q: What neuromodulation interventions are currently being investigated in clinical trials for anorexia nervosa? | search_trials({'condition': 'anorexia nervosa', 'device_only': True}) via SQL[SELECT t.nct_id, t.title, t.status, i.intervention_name, i.intervention_type FROM ctgov.tr] -> 24 rows; sample=[{\"nct_id\": \"NCT07644728\", \"title\": \"Sleep Quality and Biomarkers in Adolescent Girls With Anorexia Nervosa\", \"status\": \"NOT_YET_RECRUITING\", \"intervention_name\": \"Home Polysomnography - NOX A1\", \"intervention_type\": \"DEVICE\"}, {\"nct_id\": \"NCT03984344\", \"title\": \"Theta Burst Stimulation in Anorexia Nervosa\", \"status\": \"UNKNOWN\", \"intervention_name\": \"Sham Theta Burst Stimulation\", \"intervention_type\": \"DEVICE\"}, {\"nct_id\": \"NCT03984344\", \"title\": \"Theta Burst Stimulation in Anorexia Nervosa\", \"s"
     },
     {
-      "id": "ev_5368dd5697",
+      "id": "ev_f3032dca0e",
       "source": "openfda",
-      "content": "Q: Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa? | search_devices({'term': 'anorexia'}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devic] -> 0 rows; sample=NONE \u2014 0 matching records"
+      "content": "Q: Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa? | run_sql({'sql': \"SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices WHERE specialty LIKE '%anorexia%' OR specialty LIKE '%eating disorder%';\"}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devic] -> 0 rows; sample=NONE \u2014 0 matching records"
     },
     {
-      "id": "ev_a1d773ee85",
+      "id": "ev_f2e67627b6",
       "source": "openfda",
-      "content": "Q: Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa? | run_sql({'sql': \"SELECT * FROM openfda.neuro_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%';\"}) via SQL[SELECT * FROM openfda.neuro_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(sp] -> 0 rows; sample=NONE \u2014 0 matching records"
+      "content": "Q: Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa? | search_devices({'term': 'anorexia'}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devic] -> 0 rows; sample=NONE \u2014 0 matching records"
     },
     {
-      "id": "ev_22402b4526",
+      "id": "ev_112bcf4c5e",
       "source": "openfda",
-      "content": "Q: Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa? | run_sql({'sql': \"SELECT * FROM openfda.ai_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%';\"}) via SQL[SELECT * FROM openfda.ai_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(speci] -> 0 rows; sample=NONE \u2014 0 matching records"
+      "content": "Q: Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa? | search_devices({'term': 'eating disorder'}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devic] -> 0 rows; sample=NONE \u2014 0 matching records"
     },
     {
-      "id": "ev_7df1fa3e36",
+      "id": "ev_f6a307c9c1",
       "source": "openfda",
-      "content": "Q: Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa? | run_sql({'sql': 'SELECT * FROM openfda.neuro_devices;'}) via SQL[SELECT * FROM openfda.neuro_devices LIMIT 200] -> 25 rows; sample=[{\"k_number\": \"DEN170078\", \"device_name\": \"Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System\", \"applicant\": \"Brainways , Ltd.\", \"decision_date\": \"2018-08-17\", \"decision_description\": \"Unknown\", \"product_code\": \"QCI\", \"specialty\": \"Neurology\", \"state\": \"\"}, {\"k_number\": \"K962796\", \"device_name\": \"NEUROGUARD TRANSCRANIAL DOPPLER ULTRASOUND SYSTEM\", \"applicant\": \"Medasonics, Inc.\", \"decision_date\": \"1997-01-21\", \"decision_description\": \"Substantially Equivalent\", \"product_code\": \"IYN\","
+      "content": "Q: Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa? | run_sql({'sql': 'SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices;'}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devic] -> 25 rows; sample=[{\"k_number\": \"DEN170078\", \"device_name\": \"Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System\", \"applicant\": \"Brainways , Ltd.\", \"decision_date\": \"2018-08-17\", \"specialty\": \"Neurology\"}, {\"k_number\": \"K962796\", \"device_name\": \"NEUROGUARD TRANSCRANIAL DOPPLER ULTRASOUND SYSTEM\", \"applicant\": \"Medasonics, Inc.\", \"decision_date\": \"1997-01-21\", \"specialty\": \"Radiology\"}, {\"k_number\": \"K160442\", \"device_name\": \"Lucid M1 Transcranial Doppler Ultrasound System (Lucid M1 System) with 2MHz Tr"
     },
     {
-      "id": "ev_33a6d3998b",
+      "id": "ev_af318f35fe",
       "source": "openfda",
-      "content": "Q: Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa? | run_sql({'sql': 'SELECT * FROM openfda.ai_devices;'}) via SQL[SELECT * FROM openfda.ai_devices LIMIT 200] -> 100 rows; sample=[{\"k_number\": \"K760941\", \"device_name\": \"MASK ARTIFICIAL RESPIRATION\", \"applicant\": \"Gene R. Baldwin\", \"decision_date\": \"1977-01-12\", \"decision_description\": \"Substantially Equivalent\", \"product_code\": \"BYG\", \"clearance_type\": \"Traditional\", \"specialty\": \"Anesthesiology\", \"state\": \"IL\"}, {\"k_number\": \"K201992\", \"device_name\": \"Caption Guidance\", \"applicant\": \"Caption Health\", \"decision_date\": \"2020-09-18\", \"decision_description\": \"Substantially Equivalent\", \"product_code\": \"QJU\", \"clearance_type"
+      "content": "Q: Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa? | run_sql({'sql': 'SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.ai_devices;'}) via SQL[SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.ai_devices ] -> 100 rows; sample=[{\"k_number\": \"K760941\", \"device_name\": \"MASK ARTIFICIAL RESPIRATION\", \"applicant\": \"Gene R. Baldwin\", \"decision_date\": \"1977-01-12\", \"specialty\": \"Anesthesiology\"}, {\"k_number\": \"K201992\", \"device_name\": \"Caption Guidance\", \"applicant\": \"Caption Health\", \"decision_date\": \"2020-09-18\", \"specialty\": \"Radiology\"}, {\"k_number\": \"K914816\", \"device_name\": \"AMERICAN ARTIFICIAL LARYNX\", \"applicant\": \"Ultravoice, Ltd.\", \"decision_date\": \"1993-02-12\", \"specialty\": \"Ear, Nose, Throat\"}]"
     },
     {
-      "id": "ev_c1d4aca0d1",
+      "id": "ev_30524a8525",
       "source": "ctgov",
       "content": "Device interventions TRIALED for 'anorexia nervosa': 24 trial-arms; examples=['AN Active tDCS', 'AN Sham tDCS', 'Actigraphy', 'BED Active tDCS', 'BED Sham tDCS', 'Continuous Theta Burst Stimulation', 'DEXA', 'Deep Brain Stimulation']"
     },
     {
-      "id": "ev_7e333aff72",
+      "id": "ev_19919d63d6",
       "source": "openfda",
       "content": "FDA-CLEARED neuro devices matching modality 'deep brain': 0; examples=[]"
     },
     {
-      "id": "ev_31c8af7e28",
+      "id": "ev_f24756baa5",
       "source": "openfda",
       "content": "FDA-CLEARED neuro devices matching modality 'transcranial': 25; examples=['Brainsway Deep Transcranial Magnetic Stimulation (DTMS) System', 'NEUROGUARD TRANSCRANIAL DOPPLER ULTRASOUND SYSTEM', 'Lucid M1 Transcranial Doppler Ultrasound System (Lucid M1 System) with 2MHz Transducers', 'TRANS-SCAN 3-D TRANSCRANIAL DOPPLER', 'Deep Transcranial Magnetic Stimulation (DTMS) System']"
     },
     {
-      "id": "ev_82baddb2a8",
+      "id": "ev_dfff8d7289",
       "source": "openfda",
       "content": "Among the 25 FDA-cleared neuro-device records searched (modalities ['deep brain', 'transcranial']), NONE references 'anorexia nervosa' in its record; the cleared devices fall under specialties ['Cardiovascular', 'Neurology', 'Radiology']."
     }
   ],
   "trace": [
     {
-      "t": 1792907373.327,
+      "t": 1792908084.058,
       "step": 1,
       "agent": "planner",
       "action": "plan",
@@ -163,26 +205,26 @@
         "condition": "anorexia nervosa",
         "subquestions": [
           {
-            "question": "What neuromodulation techniques (e.g., transcranial magnetic stimulation, deep brain stimulation, vagus nerve stimulation) are being evaluated in clinical trials for anorexia nervosa?",
+            "question": "What neuromodulation interventions are currently being investigated in clinical trials for anorexia nervosa?",
             "source": "ctgov"
           },
           {
-            "question": "Which neuromodulation devices or therapies have been FDA-cleared (or approved) for the treatment of anorexia nervosa?",
+            "question": "Which neuromodulation devices or methods have received FDA clearance for the treatment of anorexia nervosa?",
             "source": "openfda"
           },
           {
-            "question": "Are any of the neuromodulation approaches currently being studied in clinical trials for anorexia nervosa also FDA-cleared for that indication?",
+            "question": "Are any neuromodulation therapies that are being studied in clinical trials also FDA-cleared for anorexia nervosa?",
             "source": "cross"
           }
         ]
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_s3g8vebs",
+      "receipt_id": "rcpt_req_ix05dpt8",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1097
+      "tokens": 1011
     },
     {
-      "t": 1792907375.005,
+      "t": 1792908085.001,
       "step": 2,
       "agent": "analyst",
       "action": "model",
@@ -191,27 +233,27 @@
         "tool_calls": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_dit3rz0w",
+      "receipt_id": "rcpt_req_5a8fs1ny",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 914
+      "tokens": 753
     },
     {
-      "t": 1792907380.359,
+      "t": 1792908089.673,
       "step": 3,
       "agent": "analyst",
       "action": "tool_result",
       "payload": {
         "tool": "search_trials",
         "args": {
-          "device_only": true,
-          "condition": "anorexia nervosa"
+          "condition": "anorexia nervosa",
+          "device_only": true
         },
         "n": 24,
         "sql": "SELECT t.nct_id, t.title, t.status, i.intervention_name, i.intervention_type FROM ctgov.trials t JOIN ctgov.intervention"
       }
     },
     {
-      "t": 1792907382.407,
+      "t": 1792908091.03,
       "step": 4,
       "agent": "analyst",
       "action": "model",
@@ -220,21 +262,21 @@
         "tool_calls": false
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_ei95hmu5",
+      "receipt_id": "rcpt_req_amysjn1g",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1870
+      "tokens": 1558
     },
     {
-      "t": 1792907382.407,
+      "t": 1792908091.031,
       "step": 5,
       "agent": "analyst",
       "action": "done",
       "payload": {
-        "content": "The trials show several neuromodulation techniques being evaluated for anorexia nervosa:\n\n- **Theta burst stimulation** (sham, continuous, intermittent) \u2013 NCT03984344  \n- **Repetitive transcranial mag"
+        "content": "In current or recently completed neuromodulation trials for anorexia nervosa, the interventions include: Home Polysomnography (NOX A1), Sham/Continuous/Intermittent Theta Burst Stimulation, Sham/Low/H"
       }
     },
     {
-      "t": 1792907383.026,
+      "t": 1792908091.953,
       "step": 6,
       "agent": "analyst",
       "action": "model",
@@ -243,13 +285,65 @@
         "tool_calls": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_j0wzwtd1",
+      "receipt_id": "rcpt_req_bh0i9ukt",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 749
+      "tokens": 777
     },
     {
-      "t": 1792907386.573,
+      "t": 1792908094.254,
       "step": 7,
+      "agent": "analyst",
+      "action": "tool_error",
+      "payload": {
+        "tool": "run_sql",
+        "error": "HTTP 400: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `conditions` cannot be resolved. Did you mean one of the following? [`state`, `applicant`, `k_number`, `specialty"
+      }
+    },
+    {
+      "t": 1792908095.043,
+      "step": 8,
+      "agent": "analyst",
+      "action": "model",
+      "payload": {
+        "step": 1,
+        "tool_calls": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_otktqefu",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 968
+    },
+    {
+      "t": 1792908098.26,
+      "step": 9,
+      "agent": "analyst",
+      "action": "tool_result",
+      "payload": {
+        "tool": "run_sql",
+        "args": {
+          "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices WHERE specialty LIKE '%anorexia%' OR specialty LIKE '%eating disorder%';"
+        },
+        "n": 0,
+        "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices WHERE specialty LIKE '%anor"
+      }
+    },
+    {
+      "t": 1792908098.919,
+      "step": 10,
+      "agent": "analyst",
+      "action": "model",
+      "payload": {
+        "step": 2,
+        "tool_calls": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_j2pya901",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1019
+    },
+    {
+      "t": 1792908101.764,
+      "step": 11,
       "agent": "analyst",
       "action": "tool_result",
       "payload": {
@@ -262,63 +356,7 @@
       }
     },
     {
-      "t": 1792907387.343,
-      "step": 8,
-      "agent": "analyst",
-      "action": "model",
-      "payload": {
-        "step": 1,
-        "tool_calls": true
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_1gltkybc",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 832
-    },
-    {
-      "t": 1792907391.066,
-      "step": 9,
-      "agent": "analyst",
-      "action": "tool_result",
-      "payload": {
-        "tool": "run_sql",
-        "args": {
-          "sql": "SELECT * FROM openfda.neuro_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%';"
-        },
-        "n": 0,
-        "sql": "SELECT * FROM openfda.neuro_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%' LIM"
-      }
-    },
-    {
-      "t": 1792907391.914,
-      "step": 10,
-      "agent": "analyst",
-      "action": "model",
-      "payload": {
-        "step": 2,
-        "tool_calls": true
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_tl3bifz4",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 913
-    },
-    {
-      "t": 1792907396.335,
-      "step": 11,
-      "agent": "analyst",
-      "action": "tool_result",
-      "payload": {
-        "tool": "run_sql",
-        "args": {
-          "sql": "SELECT * FROM openfda.ai_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%';"
-        },
-        "n": 0,
-        "sql": "SELECT * FROM openfda.ai_devices WHERE LOWER(device_name) LIKE '%anorexia%' OR LOWER(specialty) LIKE '%anorexia%' LIMIT "
-      }
-    },
-    {
-      "t": 1792907396.972,
+      "t": 1792908102.302,
       "step": 12,
       "agent": "analyst",
       "action": "model",
@@ -327,26 +365,26 @@
         "tool_calls": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_vqbtnh6c",
+      "receipt_id": "rcpt_req_f6n6upgt",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 971
+      "tokens": 1070
     },
     {
-      "t": 1792907400.008,
+      "t": 1792908105.11,
       "step": 13,
       "agent": "analyst",
       "action": "tool_result",
       "payload": {
-        "tool": "run_sql",
+        "tool": "search_devices",
         "args": {
-          "sql": "SELECT * FROM openfda.neuro_devices;"
+          "term": "eating disorder"
         },
-        "n": 25,
-        "sql": "SELECT * FROM openfda.neuro_devices LIMIT 200"
+        "n": 0,
+        "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices WHERE lower(device_name) LI"
       }
     },
     {
-      "t": 1792907401.09,
+      "t": 1792908105.89,
       "step": 14,
       "agent": "analyst",
       "action": "model",
@@ -355,49 +393,54 @@
         "tool_calls": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_age4qkxl",
+      "receipt_id": "rcpt_req_0w8y3m3i",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 2022
+      "tokens": 1139
     },
     {
-      "t": 1792907405.595,
+      "t": 1792908108.83,
       "step": 15,
       "agent": "analyst",
       "action": "tool_result",
       "payload": {
         "tool": "run_sql",
         "args": {
-          "sql": "SELECT * FROM openfda.ai_devices;"
+          "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices;"
         },
-        "n": 100,
-        "sql": "SELECT * FROM openfda.ai_devices LIMIT 200"
+        "n": 25,
+        "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.neuro_devices LIMIT 200"
       }
     },
     {
-      "t": 1792907406.351,
+      "t": 1792908109.509,
       "step": 16,
       "agent": "analyst",
       "action": "model",
       "payload": {
         "step": 5,
-        "tool_calls": false
+        "tool_calls": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_6ea5vk40",
+      "receipt_id": "rcpt_req_rm1duumk",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 3099
+      "tokens": 1944
     },
     {
-      "t": 1792907406.351,
+      "t": 1792908113.549,
       "step": 17,
       "agent": "analyst",
-      "action": "done",
+      "action": "tool_result",
       "payload": {
-        "content": "No FDA\u2011cleared neuromodulation devices (TMS, transcranial Doppler, or AI\u2011driven) list anorexia nervosa as an indication in the available openFDA datasets."
+        "tool": "run_sql",
+        "args": {
+          "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.ai_devices;"
+        },
+        "n": 100,
+        "sql": "SELECT k_number, device_name, applicant, decision_date, specialty FROM openfda.ai_devices LIMIT 200"
       }
     },
     {
-      "t": 1792907411.461,
+      "t": 1792908120.251,
       "step": 18,
       "agent": "cross_source",
       "action": "trialed",
@@ -416,7 +459,7 @@
       }
     },
     {
-      "t": 1792907415.049,
+      "t": 1792908123.522,
       "step": 19,
       "agent": "cross_source",
       "action": "cleared",
@@ -426,7 +469,7 @@
       }
     },
     {
-      "t": 1792907418.171,
+      "t": 1792908126.659,
       "step": 20,
       "agent": "cross_source",
       "action": "cleared",
@@ -436,7 +479,7 @@
       }
     },
     {
-      "t": 1792907421.135,
+      "t": 1792908129.623,
       "step": 21,
       "agent": "cross_source",
       "action": "indication_check",
@@ -450,319 +493,469 @@
       }
     },
     {
-      "t": 1792907438.374,
+      "t": 1792908151.167,
       "step": 22,
       "agent": "reporter",
       "action": "draft",
       "payload": {
         "claims": [
-          "Clinical trials for anorexia nervosa have evaluated neuromodulation intervention",
-          "Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep\u2011brain and transcran",
-          "No FDA\u2011cleared neuromodulation device or therapy has been approved for the treat"
+          "Clinical trials have evaluated multiple neuromodulation approaches for anorexia ",
+          "A ClinicalTrials.gov search identified neuromodulation trials in anorexia nervos",
+          "No neuromodulation device or method has received FDA clearance for the treatment",
+          "The FDA\u2011cleared neuromodulation devices (e.g., Brainsway Deep TMS System, k_numb",
+          "An openFDA search for neuromodulation devices cleared for 'anorexia' or 'eating "
         ],
         "revised": false
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_qc4f658k",
+      "receipt_id": "rcpt_req_8mfombba",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 3545
+      "tokens": 3619
     },
     {
-      "t": 1792907443.524,
+      "t": 1792908157.406,
       "step": 23,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromod",
+        "claim": "Clinical trials have evaluated multiple neuromodulation appr",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_6ezi8582",
+      "receipt_id": "rcpt_req_q5n7nskm",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1204
+      "tokens": 1245
     },
     {
-      "t": 1792907447.818,
+      "t": 1792908168.663,
       "step": 24,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromod",
+        "claim": "Clinical trials have evaluated multiple neuromodulation appr",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_jz8sst31",
+      "receipt_id": "rcpt_req_xusqsx8b",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1215
+      "tokens": 1818
     },
     {
-      "t": 1792907447.818,
+      "t": 1792908168.663,
       "step": 25,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromodulation interventions includin",
+        "claim": "Clinical trials have evaluated multiple neuromodulation approaches for anorexia nervosa, i",
         "supported": true,
         "votes": "2/2",
-        "reason": "The cited ClinicalTrials.gov data lists 24 trial\u2011arms for anorexia nervosa that explicitly include 'AN Active tDCS', 'AN"
+        "reason": "The cited evidence from ctgov lists trial arms for anorexia nervosa that include AN Active tDCS, AN Sham tDCS, Continuou"
       }
     },
     {
-      "t": 1792907467.391,
+      "t": 1792908175.92,
       "step": 26,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep",
+        "claim": "A ClinicalTrials.gov search identified neuromodulation trial",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_h5hh8ybu",
+      "receipt_id": "rcpt_req_u1b6hi8f",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1438
+      "tokens": 1265
     },
     {
-      "t": 1792907472.688,
+      "t": 1792908192.435,
       "step": 27,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep",
+        "claim": "A ClinicalTrials.gov search identified neuromodulation trial",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_wu4uuwnk",
+      "receipt_id": "rcpt_req_699i3cct",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1195
+      "tokens": 2231
     },
     {
-      "t": 1792907472.688,
+      "t": 1792908192.435,
       "step": 28,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (covering deep\u2011brain and transcranial modali",
+        "claim": "A ClinicalTrials.gov search identified neuromodulation trials in anorexia nervosa, such as",
         "supported": true,
         "votes": "2/2",
-        "reason": "The cited evidence directly states that among the 25 FDA-cleared neuro-device records (modalities deep brain and transcr"
+        "reason": "The cited evidence includes a ClinicalTrials.gov search for neuromodulation interventions in anorexia nervosa (device_on"
       }
     },
     {
-      "t": 1792907479.181,
+      "t": 1792908196.661,
       "step": 29,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "No FDA\u2011cleared neuromodulation device or therapy has been ap",
+        "claim": "No neuromodulation device or method has received FDA clearan",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_5fjyt61r",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1177
+    },
+    {
+      "t": 1792908203.39,
+      "step": 30,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "No neuromodulation device or method has received FDA clearan",
         "supported": false
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_juakra8h",
+      "receipt_id": "rcpt_req_toisjys8",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1433
+      "tokens": 1466
     },
     {
-      "t": 1792907479.181,
-      "step": 30,
+      "t": 1792908203.39,
+      "step": 31,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
-        "claim": "No FDA\u2011cleared neuromodulation device or therapy has been approved for the treatment of an",
+        "claim": "No neuromodulation device or method has received FDA clearance for the treatment of anorex",
         "supported": false,
-        "votes": "0/1",
-        "reason": "The cited evidence consists of bounded/openfda searches (a term search for 'anorexia' returning 0 rows, and a review of "
+        "votes": "1/2",
+        "reason": "The cited evidence only reports results from a limited search of 25 FDA\u2011cleared neuro\u2011device records in the openfda data"
       }
     },
     {
-      "t": 1792907479.181,
-      "step": 31,
+      "t": 1792908212.154,
+      "step": 32,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "The FDA\u2011cleared neuromodulation devices (e.g., Brainsway Dee",
+        "supported": false
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_uqmxt4pq",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1738
+    },
+    {
+      "t": 1792908212.154,
+      "step": 33,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "The FDA\u2011cleared neuromodulation devices (e.g., Brainsway Deep TMS System, k_number DEN1700",
+        "supported": false,
+        "votes": "0/1",
+        "reason": "The evidence is a bounded FDA search of 25 cleared neuro\u2011device records; it lists specialties (Neurology, Cardiovascular"
+      }
+    },
+    {
+      "t": 1792908219.555,
+      "step": 34,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search for neuromodulation devices cleared for 'a",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_mlvtcw5q",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1303
+    },
+    {
+      "t": 1792908233.815,
+      "step": 35,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search for neuromodulation devices cleared for 'a",
+        "supported": false
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_xtrf5bpb",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 2061
+    },
+    {
+      "t": 1792908233.815,
+      "step": 36,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "An openFDA search for neuromodulation devices cleared for 'anorexia' or 'eating disorder' ",
+        "supported": false,
+        "votes": "1/2",
+        "reason": "The cited evidence only reports that the openFDA searches for the terms 'anorexia' and 'eating disorder' returned zero r"
+      }
+    },
+    {
+      "t": 1792908233.815,
+      "step": 37,
       "agent": "orchestrator",
       "action": "round",
       "payload": {
         "round": 0,
         "supported": 2,
-        "dropped": 1
+        "dropped": 3
       }
     },
     {
-      "t": 1792907514.064,
-      "step": 32,
+      "t": 1792908253.828,
+      "step": 38,
       "agent": "reporter",
       "action": "draft",
       "payload": {
         "claims": [
-          "Clinical trials for anorexia nervosa have evaluated neuromodulation trial arms i",
-          "An FDA device search using the term 'anorexia' returned zero rows, indicating no",
-          "Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modal",
-          "FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway Deep Transcranial M"
+          "Among the ClinicalTrials.gov records searched, 24 trial arms have tested neuromo",
+          "An openFDA search for neuromodulation devices cleared for the treatment of anore",
+          "An openFDA search using the term 'anorexia' among neuro\u2011device records returned ",
+          "An openFDA search using the term 'eating disorder' among neuro\u2011device records re",
+          "Among the 25 FDA\u2011cleared neuro\u2011device records (modalities deep brain and transcr",
+          "The FDA\u2011cleared Brainsway Deep Transcranial Magnetic Stimulation System (k_numbe"
         ],
         "revised": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_xanks9ia",
+      "receipt_id": "rcpt_req_kaspvqqg",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 4950
+      "tokens": 4354
     },
     {
-      "t": 1792907526.127,
-      "step": 33,
-      "agent": "evaluator",
-      "action": "vote",
-      "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromod",
-        "supported": true
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_rp2qfj7b",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1473
-    },
-    {
-      "t": 1792907532.387,
-      "step": 34,
-      "agent": "evaluator",
-      "action": "vote",
-      "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromod",
-        "supported": true
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_tge71laa",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1371
-    },
-    {
-      "t": 1792907532.387,
-      "step": 35,
-      "agent": "evaluator",
-      "action": "verdict",
-      "payload": {
-        "claim": "Clinical trials for anorexia nervosa have evaluated neuromodulation trial arms including a",
-        "supported": true,
-        "votes": "2/2",
-        "reason": "The cited ctgov evidence lists trial arms for anorexia nervosa that include 'AN Active tDCS', 'AN Sham tDCS', 'Continuou"
-      }
-    },
-    {
-      "t": 1792907537.543,
-      "step": 36,
-      "agent": "evaluator",
-      "action": "vote",
-      "payload": {
-        "claim": "An FDA device search using the term 'anorexia' returned zero",
-        "supported": false
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_is4f71px",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1275
-    },
-    {
-      "t": 1792907537.543,
-      "step": 37,
-      "agent": "evaluator",
-      "action": "verdict",
-      "payload": {
-        "claim": "An FDA device search using the term 'anorexia' returned zero rows, indicating no neuromodu",
-        "supported": false,
-        "votes": "0/1",
-        "reason": "The evidence consists of a single openfda search for the term 'anorexia' in the neuro_devic table that returned zero row"
-      }
-    },
-    {
-      "t": 1792907545.411,
-      "step": 38,
-      "agent": "evaluator",
-      "action": "vote",
-      "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain an",
-        "supported": true
-      },
-      "route": "meterless",
-      "receipt_id": "rcpt_req_e9yqb01o",
-      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1536
-    },
-    {
-      "t": 1792907555.896,
+      "t": 1792908262.878,
       "step": 39,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain an",
-        "supported": true
+        "claim": "Among the ClinicalTrials.gov records searched, 24 trial arms",
+        "supported": false
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_fepczipr",
+      "receipt_id": "rcpt_req_gkjzv5k0",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1447
+      "tokens": 1723
     },
     {
-      "t": 1792907555.896,
+      "t": 1792908262.878,
       "step": 40,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
-        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modalities), no",
-        "supported": true,
-        "votes": "2/2",
-        "reason": "The cited evidence directly states that among the 25 FDA\u2011cleared neuro\u2011device records (deep\u2011brain and transcranial modal"
+        "claim": "Among the ClinicalTrials.gov records searched, 24 trial arms have tested neuromodulation i",
+        "supported": false,
+        "votes": "0/1",
+        "reason": "The cited evidence lists 24 device\u2011intervention trial arms for anorexia nervosa, but the list includes many non\u2011neuromod"
       }
     },
     {
-      "t": 1792907561.14,
+      "t": 1792908267.921,
       "step": 41,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway",
+        "claim": "An openFDA search for neuromodulation devices cleared for th",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_cckqwxiw",
+      "receipt_id": "rcpt_req_6atve1xc",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1354
+      "tokens": 1077
     },
     {
-      "t": 1792907567.538,
+      "t": 1792908275.411,
       "step": 42,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
-        "claim": "FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway",
+        "claim": "An openFDA search for neuromodulation devices cleared for th",
         "supported": true
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_fp5tfv0k",
+      "receipt_id": "rcpt_req_kh7e3ijl",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 1589
+      "tokens": 1288
     },
     {
-      "t": 1792907567.538,
+      "t": 1792908275.411,
       "step": 43,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
-        "claim": "FDA\u2011cleared transcranial neuro\u2011devices include the Brainsway Deep Transcranial Magnetic St",
+        "claim": "An openFDA search for neuromodulation devices cleared for the treatment of anorexia nervos",
         "supported": true,
         "votes": "2/2",
-        "reason": "The evidence from openfda reports 25 FDA\u2011cleared transcranial neuro devices and lists the Brainsway Deep Transcranial Ma"
+        "reason": "The cited evidence provides an openFDA query against the neuro_devices table filtering by specialty containing 'anorexia"
       }
     },
     {
-      "t": 1792907567.538,
+      "t": 1792908276.813,
       "step": 44,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search using the term 'anorexia' among neuro\u2011devi",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_e79v1g3x",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 642
+    },
+    {
+      "t": 1792908278.215,
+      "step": 45,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search using the term 'anorexia' among neuro\u2011devi",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_184ffrw1",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 642
+    },
+    {
+      "t": 1792908278.215,
+      "step": 46,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "An openFDA search using the term 'anorexia' among neuro\u2011device records returned zero rows.",
+        "supported": true,
+        "votes": "2/2",
+        "reason": "The cited evidence shows an openFDA search for 'anorexia' among neuro-device records returned zero rows, which directly "
+      }
+    },
+    {
+      "t": 1792908280.144,
+      "step": 47,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search using the term 'eating disorder' among neu",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_4nm0kfoe",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 704
+    },
+    {
+      "t": 1792908283.087,
+      "step": 48,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "An openFDA search using the term 'eating disorder' among neu",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_fdxngvov",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 769
+    },
+    {
+      "t": 1792908283.087,
+      "step": 49,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "An openFDA search using the term 'eating disorder' among neuro\u2011device records returned zer",
+        "supported": true,
+        "votes": "2/2",
+        "reason": "The cited evidence explicitly reports that the openFDA search using the term 'eating disorder' among neuro\u2011device record"
+      }
+    },
+    {
+      "t": 1792908290.526,
+      "step": 50,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (modalities de",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_ztpqavt7",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1419
+    },
+    {
+      "t": 1792908297.461,
+      "step": 51,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (modalities de",
+        "supported": true
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_86tdfrp7",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1331
+    },
+    {
+      "t": 1792908297.461,
+      "step": 52,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "Among the 25 FDA\u2011cleared neuro\u2011device records (modalities deep brain and transcranial), no",
+        "supported": true,
+        "votes": "2/2",
+        "reason": "The cited evidence explicitly states that among the 25 FDA-cleared neuro-device records (modalities deep brain and trans"
+      }
+    },
+    {
+      "t": 1792908306.741,
+      "step": 53,
+      "agent": "evaluator",
+      "action": "vote",
+      "payload": {
+        "claim": "The FDA\u2011cleared Brainsway Deep Transcranial Magnetic Stimula",
+        "supported": false
+      },
+      "route": "meterless",
+      "receipt_id": "rcpt_req_k6yb6oxg",
+      "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "tokens": 1631
+    },
+    {
+      "t": 1792908306.741,
+      "step": 54,
+      "agent": "evaluator",
+      "action": "verdict",
+      "payload": {
+        "claim": "The FDA\u2011cleared Brainsway Deep Transcranial Magnetic Stimulation System (k_number DEN17007",
+        "supported": false,
+        "votes": "0/1",
+        "reason": "The evidence only lists the Brainsway Deep TMS System's specialty as Neurology; it does not show clearance for Cardiovas"
+      }
+    },
+    {
+      "t": 1792908306.741,
+      "step": 55,
       "agent": "orchestrator",
       "action": "round",
       "payload": {
         "round": 1,
-        "supported": 5,
-        "dropped": 1
+        "supported": 6,
+        "dropped": 2
       }
     },
     {
-      "t": 1792907571.262,
-      "step": 45,
+      "t": 1792908314.444,
+      "step": 56,
       "agent": "evaluator",
       "action": "vote",
       "payload": {
@@ -770,20 +963,20 @@
         "supported": false
       },
       "route": "meterless",
-      "receipt_id": "rcpt_req_ymr61xeh",
+      "receipt_id": "rcpt_req_rzio7bsa",
       "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "tokens": 2117
+      "tokens": 2407
     },
     {
-      "t": 1792907571.262,
-      "step": 46,
+      "t": 1792908314.444,
+      "step": 57,
       "agent": "evaluator",
       "action": "verdict",
       "payload": {
         "claim": "rTMS is FDA-cleared to treat anorexia nervosa.",
         "supported": false,
         "votes": "0/1",
-        "reason": "The cited evidence contains no FDA clearance for rTMS (or any neuromodulation device) for anorexia nervosa. OpenFDA sear"
+        "reason": "The cited evidence contains no FDA-cleared neuromodulation device indicated for anorexia nervosa. OpenFDA queries for de"
       }
     }
   ]

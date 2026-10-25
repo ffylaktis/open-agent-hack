@@ -100,7 +100,8 @@ def run(question, mission=None, stress_claims=None):
 
     supported, all_dropped, feedback = {}, {}, None
     for rnd in range(MAX_ROUNDS):
-        claims = reporter.report(question, evidence, trace, feedback=feedback)
+        claims = reporter.report(question, evidence, trace, feedback=feedback,
+                                 already_supported=list(supported.keys()))
         verdicts = []
         for c in claims:
             if time.monotonic() - t0 > RUN_BUDGET_SECONDS:   # budget guards evaluate too, not just gather
