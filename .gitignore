@@ -11,3 +11,10 @@ __pycache__/
 # OS / editor
 .DS_Store
 .vscode/
+
+# Ingested third-party reference docs (local only, not redistributed)
+reference/
+
+# H-MEM runtime store + test scratch
+data/hmem_store.json
+tests/_hmem*.json
