@@ -11,6 +11,8 @@ __pycache__/
 # OS / editor
 .DS_Store
 .vscode/
+# Office temp/lock files (e.g. ~$deck.pptx while open in PowerPoint)
+~$*
 
 # Ingested third-party reference docs (local only, not redistributed)
 reference/
