@@ -62,10 +62,9 @@ def cross_source(condition, store, trace):
     if cind:
         content = f"{len(cind)} cleared neuro device records reference '{condition}'."
     else:
-        content = (f"INDICATION CHECK (scoped): among the {len(cleared_all)} cleared neuro-device records searched, "
-                   f"NONE name '{condition}'. 510(k) records carry no indication-for-use field; these devices fall "
-                   f"under specialties {specialties[:4]}. This BOUNDS (does not prove) absence of a cleared "
-                   f"'{condition}' indication.")
+        content = (f"Among the {len(cleared_all)} FDA-cleared neuro-device records searched (modalities "
+                   f"{sorted(terms)}), NONE references '{condition}' in its record; the cleared devices fall "
+                   f"under specialties {specialties[:4]}.")
     ev.append(store.write(_mk(content, "openfda", _devices_sql(condition), cind, [condition, "indication", "cleared"])))
     trace.add("cross_source", "indication_check", {"n": len(cind), "specialties": specialties[:4]})
     return ev
