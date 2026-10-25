@@ -8,7 +8,7 @@ import os
 import sys
 import time
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from agent.config import HMEM_PATH
 
 
@@ -36,6 +36,14 @@ class Evidence:
         p = self.provenance or {}
         detail = p.get("sql") or json.dumps(p.get("args", {}), sort_keys=True, default=str)
         return f"{self.source}|{detail}"
+
+
+_EV_FIELDS = {f.name for f in fields(Evidence)}
+
+
+def _evidence_from_rec(rec: dict) -> Evidence:
+    """Rebuild an Evidence (same id) from a stored record, ignoring store-only keys."""
+    return Evidence(**{k: v for k, v in rec.items() if k in _EV_FIELDS})
 
 
 class TrustLedger:
@@ -89,8 +97,9 @@ class MemoryStore:
         base = ev.dedupe_key()
         full = self._full_key(self.mission, base)
         if full in self._keys:                     # de-dupe within this mission
-            self.ledger.record("dedupe", self._keys[full], note=full)
-            return ev
+            existing = self.records[self._keys[full]]
+            self.ledger.record("dedupe", existing["id"], note=full)
+            return _evidence_from_rec(existing)     # return the STORED record (correct id)
         rec = asdict(ev)
         rec["_key"] = base
         rec["mission"] = self.mission

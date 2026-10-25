@@ -17,7 +17,6 @@ ZETARIS_ORG_ID = os.environ.get("ZETARIS_ORG_ID", "1")
 ZETARIS_API_KEY = os.environ.get("ZETARIS_API_KEY", "")
 
 _READ_ONLY = ("select", "with", "show", "describe", "desc", "explain")
-_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 
 
 class ReadOnlyError(ValueError):
@@ -29,10 +28,31 @@ class SqlError(RuntimeError):
 
 
 def _strip(sql: str) -> str:
-    """Remove block + line comments, trim, drop a single trailing ';'."""
-    s = _BLOCK_COMMENT.sub(" ", sql)
-    s = "\n".join(ln.split("--", 1)[0] for ln in s.splitlines())
-    return s.strip().rstrip(";").strip()
+    """Remove `--` line and `/* */` block comments, trim, drop a trailing ';'.
+    Quote-aware: `--`/`/*` inside a single-quoted string literal are preserved."""
+    out, i, n, in_str = [], 0, len(sql), False
+    while i < n:
+        ch = sql[i]
+        if in_str:
+            out.append(ch)
+            if ch == "'":
+                if i + 1 < n and sql[i + 1] == "'":   # escaped '' inside a literal
+                    out.append("'"); i += 2; continue
+                in_str = False
+            i += 1
+        elif ch == "'":
+            in_str = True; out.append(ch); i += 1
+        elif ch == "-" and i + 1 < n and sql[i + 1] == "-":        # line comment
+            while i < n and sql[i] != "\n":
+                i += 1
+        elif ch == "/" and i + 1 < n and sql[i + 1] == "*":        # block comment
+            i += 2
+            while i + 1 < n and not (sql[i] == "*" and sql[i + 1] == "/"):
+                i += 1
+            i += 2
+        else:
+            out.append(ch); i += 1
+    return "".join(out).strip().rstrip(";").strip()
 
 
 def _guard(sql: str) -> str:
@@ -178,4 +198,3 @@ SEARCH_DEVICES_TOOL = {
 }
 
 TOOLS = [RUN_SQL_TOOL, SEARCH_TRIALS_TOOL, SEARCH_DEVICES_TOOL]
-DISPATCH = {"run_sql": run_sql, "search_trials": search_trials, "search_devices": search_devices}

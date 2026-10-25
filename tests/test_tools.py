@@ -62,10 +62,15 @@ def t_call_tool_empty_has_sql():
     rows, sql = call_tool("search_devices", {"term": "zzzznotadevice"})
     assert rows == [] and "neuro_devices" in sql, f"empty path lost SQL: {rows} {sql}"
 
+def t_strip_preserves_quoted_dashes():
+    g = _guard("SELECT nct_id FROM ctgov.trials t WHERE t.title = 'a--b' LIMIT 1")
+    assert "'a--b'" in g, f"quote-safe strip failed: {g}"
+
 for n, f in [("read-only blocked (+comments)", t_readonly_blocked), ("strip+limit", t_strip_and_limit),
              ("dict rows + count", t_dict_rows), ("sql error raises", t_sql_error_raises),
              ("condition filter works", t_condition_filter), ("neuro devices", t_neuro_devices),
              ("call_tool validates args", t_call_tool_validation),
              ("call_tool returns real SQL", t_call_tool_returns_sql),
-             ("empty result keeps SQL", t_call_tool_empty_has_sql)]:
+             ("empty result keeps SQL", t_call_tool_empty_has_sql),
+             ("strip preserves quoted --", t_strip_preserves_quoted_dashes)]:
     check(n, f)

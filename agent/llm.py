@@ -53,8 +53,8 @@ def chat(messages, tools=None, temperature=0, think=False, require_meterless=Fal
             return comp.choices[0].message, meta
         except Exception as e:
             fallback_reason = f"meterless unreachable: {str(e)[:120]}"
-            if require_meterless:
-                raise RuntimeError(fallback_reason)
+    if require_meterless:                         # never silently fall back when the route is required
+        raise RuntimeError("require_meterless: " + (fallback_reason or "Meterless not configured"))
     if _nvidia:
         comp = _nvidia.chat.completions.create(model=_NV_MODEL, **kw)
         return comp.choices[0].message, {"route": "nvidia-direct", "model": _NV_MODEL,
