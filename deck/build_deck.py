@@ -6,6 +6,7 @@
 Content mirrors docs/slides-outline.md; the numbers are from the recorded run
 (data/sample_run.json). Regenerate any time the story changes — it's deterministic.
 """
+import math
 import os
 
 from pptx import Presentation
@@ -90,6 +91,16 @@ def _conn(slide, x1, y1, x2, y2, color, width_pt=2.0, arrow=True):
         except Exception:
             pass
     return c
+
+
+def _ring_arrow(slide, c1, c2, color, width=2.0, perp=0.0, off1=0.98, off2=1.1):
+    (x1, y1), (x2, y2) = c1, c2
+    dx, dy = x2 - x1, y2 - y1
+    d = math.hypot(dx, dy) or 1.0
+    ux, uy = dx / d, dy / d
+    px, py = -uy, ux
+    return _conn(slide, x1 + ux * off1 + px * perp, y1 + uy * off1 + py * perp,
+                 x2 - ux * off2 + px * perp, y2 - uy * off2 + py * perp, color, width_pt=width, arrow=True)
 
 
 def _footer(slide):
@@ -250,17 +261,21 @@ else:
 s = prs.slides.add_slide(BLANK)
 _bg(s, WHITE)
 _header(s, "Architecture · Technical", "A real agent, not a pipeline")
-labels = ["Planner", "Analyst", "cross_source", "Reporter", "Evaluator"]
-subs = ["decompose", "SQL → evidence", "trialed × cleared", "cite claims", "verify / reject"]
-n, margin, gap, box_h, y = 5, 0.7, 0.42, 1.15, 2.5
-total_w = 13.333 - 2 * margin
-box_w = (total_w - (n - 1) * gap) / n
-centers = []
-for i, (lab, sub) in enumerate(zip(labels, subs, strict=True)):
-    x = margin + i * (box_w + gap)
-    centers.append(x + box_w / 2)
+cx, cy, rx, ry = 6.4, 4.5, 4.25, 1.6
+nodes = [("Planner", "decompose"), ("Analyst", "SQL → evidence"),
+         ("cross_source", "trialed × cleared"), ("Reporter", "cite claims"),
+         ("Evaluator", "verify / reject")]
+pos = [(cx + rx * math.sin(math.radians(72 * k)), cy - ry * math.cos(math.radians(72 * k))) for k in range(5)]
+nw, nh = 1.95, 0.88
+# forward flow circulates around the ring (drawn first; nodes cover the arrow tails)
+for k in range(4):
+    _ring_arrow(s, pos[k], pos[k + 1], TEAL)
+# the feedback edge — Evaluator back to Reporter — bowed outside the ring, gold
+_ring_arrow(s, pos[4], pos[3], GOLD, width=2.25, perp=0.62)
+for k, (lab, sub) in enumerate(nodes):
+    x, y = pos[k]
     hot = lab == "Evaluator"
-    sp = _rect(s, x, y, box_w, box_h, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    sp = _rect(s, x - nw / 2, y - nh / 2, nw, nh, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
     if not hot:
         sp.line.color.rgb = TEAL
         sp.line.width = Pt(1.5)
@@ -269,33 +284,28 @@ for i, (lab, sub) in enumerate(zip(labels, subs, strict=True)):
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
-    _run(p, lab, 14, WHITE if hot else INK, bold=True)
+    _run(p, lab, 13.5, WHITE if hot else INK, bold=True)
     p2 = tf.add_paragraph()
     p2.alignment = PP_ALIGN.CENTER
-    _run(p2, sub, 9.5, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
-    if i < n - 1:
-        _rect(s, x + box_w + 0.02, y + box_h / 2 - 0.1, gap - 0.04, 0.2, TEAL, shape=MSO_SHAPE.RIGHT_ARROW)
-
-# the feedback loop (the differentiator) drawn as a REAL return edge: Evaluator -> back to Reporter
-bot, lane = y + box_h, y + box_h + 0.7
-ev_c, rp_c = centers[4], centers[3]
-_conn(s, ev_c, bot, ev_c, lane, GOLD, arrow=False)
-_conn(s, ev_c, lane, rp_c, lane, GOLD, arrow=False)
-_conn(s, rp_c, lane, rp_c, bot, GOLD, arrow=True)
-loop_lines = [
-    (lane + 0.12, GOLD,
-     "✗ unsupported → the Reporter revises & re-cites, then re-evaluates (loops ≤ MAX_ROUNDS)"),
-    (lane + 0.52, TEAL,
-     "✓ the cited answer ships only when every claim passes the Evaluator"),
-]
-for ty, col, txt in loop_lines:
-    t = _box(s, 0.7, ty, 11.9, 0.35)
-    t.paragraphs[0].alignment = PP_ALIGN.CENTER
-    _run(t.paragraphs[0], txt, 13, col, bold=True)
-t = _box(s, 0.7, 5.85, 11.9, 0.9)
+    _run(p2, sub, 9, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
+# shared memory at the hub
+hm = _rect(s, cx - 1.05, cy - 0.44, 2.1, 0.88, RGBColor(0xFD, 0xF3, 0xE3), shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+hm.line.color.rgb = GOLD
+hm.line.width = Pt(1.25)
+hm.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+p = hm.text_frame.paragraphs[0]
+p.alignment = PP_ALIGN.CENTER
+_run(p, "H-MEM", 12, GOLD, bold=True)
+p2 = hm.text_frame.add_paragraph()
+p2.alignment = PP_ALIGN.CENTER
+_run(p2, "shared evidence · provenance", 8.5, MUTED)
+t = _box(s, 0.55, 5.35, 2.3, 0.3)
 t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "A cycle, not a line — specialized roles · separate Nemotron calls · shared H-MEM evidence "
-                      "memory · full trace + signed Meterless receipts.", 13, MUTED)
+_run(t.paragraphs[0], "✗ revise & re-cite", 11, GOLD, bold=True)
+t = _box(s, 0.7, 6.55, 11.9, 0.45)
+t.paragraphs[0].alignment = PP_ALIGN.CENTER
+_run(t.paragraphs[0], "A cycle, not a line — specialized roles · separate Nemotron calls · the Evaluator loops "
+                      "unsupported claims back (≤ MAX_ROUNDS) and ships only when every claim is backed.", 12, MUTED)
 _footer(s)
 
 # 6 — Cross-source (two columns)
