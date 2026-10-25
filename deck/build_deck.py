@@ -30,6 +30,11 @@ FOOT = ("Evidence-Intelligence Agent · Open Agent Hackathon 2026 · Track 02 ·
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 UI_FULL = os.path.join(ASSETS, "ui_full.png")             # captured by deck/capture_ui.py
 UI_REJECTED = os.path.join(ASSETS, "ui_rejected.png")
+_LOGO = os.path.join(ASSETS, "logos")
+L_NVIDIA = os.path.join(_LOGO, "nvidia.png")
+L_ZETARIS = os.path.join(_LOGO, "zetaris.png")
+L_METERLESS = os.path.join(_LOGO, "meterless.png")
+L_CURSOR = os.path.join(_LOGO, "cursor.png")
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -157,6 +162,30 @@ def _stamp(slide, left, top, w, h, text, color, rot=-8, size=15):
     p.alignment = PP_ALIGN.CENTER
     _run(p, text, size, color, bold=True)
     return sp
+
+
+def _logo_cards(slide, paths, top, cell_h, left=0.9, total_w=11.53):
+    from PIL import Image
+    n = len(paths)
+    cell_w = total_w / n
+    pad = 0.2
+    for i, path in enumerate(paths):
+        cx0 = left + i * cell_w
+        card = _rect(slide, cx0 + 0.12, top, cell_w - 0.24, cell_h, RGBColor(0xFA, 0xFB, 0xFC),
+                     shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+        card.line.color.rgb = LINE
+        card.line.width = Pt(1)
+        if not os.path.exists(path):
+            continue
+        with Image.open(path) as im:
+            iw, ih = im.size
+        ar = iw / ih
+        avail_w, avail_h = cell_w - 0.24 - 2 * pad, cell_h - 2 * pad
+        w, h = avail_w, avail_w / ar
+        if h > avail_h:
+            h, w = avail_h, avail_h * ar
+        ccx, ccy = cx0 + cell_w / 2, top + cell_h / 2
+        slide.shapes.add_picture(path, Inches(ccx - w / 2), Inches(ccy - h / 2), width=Inches(w), height=Inches(h))
 
 
 # 1 — Title
@@ -316,14 +345,23 @@ _run(t.paragraphs[0], "The cited records show those devices are cleared — but 
 t = _box(s, 0.7, 6.15, 11.9, 0.5)
 _run(t.paragraphs[0], "Every rejection ships with its reason — that is the “why.”", 15, TEAL, bold=True)
 
-# 8 — Stack & sponsor tech
-content_slide("Sponsor tech", "Built on the sponsor stack", [
+# 8 — Stack & sponsor tech: logo strip (recognition) + how each is used
+S8_BULLETS = [
     ("Zetaris", "— governed SQL data layer; read-only guard; a cross-source join of two disconnected registries."),
     ("Meterless", "— H-MEM evidence engine + Nightshift provider; every model call returns a signed receipt."),
     ("NVIDIA Nemotron", "— pinned reasoning model (nemotron-3.5-lightning-30b-a3b); it does the adjudication."),
     ("Cursor", "— development environment."),
     ("Telemetry per run:", "24 Meterless-routed calls · 41,480 tokens · signed receipts."),
-], accent=TEAL)
+]
+if all(os.path.exists(p) for p in (L_ZETARIS, L_METERLESS, L_NVIDIA, L_CURSOR)):
+    s = prs.slides.add_slide(BLANK)
+    _bg(s, WHITE)
+    _header(s, "Sponsor tech", "Built on the sponsor stack")
+    _logo_cards(s, [L_ZETARIS, L_METERLESS, L_NVIDIA, L_CURSOR], top=2.15, cell_h=0.95)
+    _bullets(s, S8_BULLETS, top=3.4, size=15, gap=10, height=3.3)
+    _footer(s)
+else:
+    content_slide("Sponsor tech", "Built on the sponsor stack", S8_BULLETS)
 
 # 9 — unique + verified, with a ✓ VERIFIED stamp (the receipt motif)
 s = prs.slides.add_slide(BLANK)
