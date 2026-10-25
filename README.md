@@ -31,7 +31,7 @@ See `docs/architecture.md` for the diagram.
 
 ## Prerequisites
 - Python 3.12, Docker Desktop, 16 GB+ RAM.
-- **Zetaris** running locally in Docker (`localhost:8888`) — see `HACKATHON.md` / Zetaris getting-started.
+- **Zetaris** running locally in Docker (`localhost:8888`) — see the Zetaris getting-started guide.
 - **Meterless Nightshift** running (`127.0.0.1:8088`) with the NVIDIA provider + a Nemotron lane configured.
 
 ## Setup
@@ -72,13 +72,13 @@ CI (`.github/workflows/ci.yml`) runs ruff + offline pytest + the sample scorecar
 
 ## Repo layout
 ```
-agent/   orchestrator · planner · analyst · cross_source · reporter · evaluator · memory(H-MEM) · tools_zetaris · llm · trace · config
+agent/   orchestrator · planner · analyst · cross_source · reporter · evaluator · memory(H-MEM) · tools_zetaris · llm · trace · web · config
 data/    *_register.sql recipes + register.py (privileged DDL path) + sample_run.json
 evals/   grounding golden set + scorers + run_evals (sample & live scorecards)
-tests/   pytest — offline (guard, H-MEM) + live-marked integration (tools, analyst, e2e)
-docs/    architecture.md
-pyproject.toml · requirements-dev.txt   # ruff + pytest config, dev tooling
-PRD.md · DECISIONS.md · HACKATHON.md     # spec, decision log, rules
+tests/   pytest — offline (guard, H-MEM, web) + live-marked integration (tools, analyst, e2e)
+deck/    build_deck.py (PPTX generator) · capture_ui.py · the slide deck + assets
+docs/    architecture.md · sponsor-tech.md · slides-outline.md
+pyproject.toml · requirements-dev.txt · .github/workflows/ci.yml   # dev tooling + CI
 ```
 
 ## Dependencies
