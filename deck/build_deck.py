@@ -261,59 +261,68 @@ else:
 s = prs.slides.add_slide(BLANK)
 _bg(s, WHITE)
 _header(s, "Architecture · Technical", "A real agent, not a pipeline")
-labels = [("Planner", "decompose"), ("Analyst", "SQL → evidence"),
-          ("cross_source", "trialed × cleared"), ("Reporter", "cite claims"),
-          ("Evaluator", "verify / reject")]
-n, margin, gap, box_h, row_y = 5, 0.7, 0.46, 1.0, 2.95
-box_w = (13.333 - 2 * margin - (n - 1) * gap) / n
-cxs = []
-for i, (lab, sub) in enumerate(labels):
-    x = margin + i * (box_w + gap)
-    cxs.append(x + box_w / 2)
-    hot = lab == "Evaluator"
-    sp = _rect(s, x, row_y, box_w, box_h, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-    if not hot:
-        sp.line.color.rgb = TEAL
-        sp.line.width = Pt(1.5)
-    tf = sp.text_frame
-    tf.word_wrap = True
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    p = tf.paragraphs[0]
+cy = 3.8
+mb_w, mb_h = 1.65, 0.95
+cx_p, cx_m, cx_r, cx_e = 1.3, 6.8, 9.0, 11.1              # Planner, H-MEM hub, Reporter, Evaluator
+lane_cx, lane_w, lane_h = 3.7, 2.6, 0.72
+lane_cys = [2.9, 3.8, 4.7]
+lanes = [("Analyst", "sub-question"), ("Analyst", "sub-question"), ("cross_source", "trialed × cleared")]
+
+
+def _node(cx, cyy, w, h, lab, sub, hot=False, border=TEAL, fill=None, labc=None, ls=13, ss=9):
+    sp = _rect(s, cx - w / 2, cyy - h / 2, w, h, fill if fill is not None else (TEAL if hot else WHITE),
+               shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    sp.line.color.rgb = border
+    sp.line.width = Pt(1.5)
+    sp.text_frame.word_wrap = True
+    sp.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = sp.text_frame.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
-    _run(p, lab, 13.5, WHITE if hot else INK, bold=True)
-    p2 = tf.add_paragraph()
-    p2.alignment = PP_ALIGN.CENTER
-    _run(p2, sub, 9, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
-    if i < n - 1:
-        _rect(s, x + box_w + 0.05, row_y + box_h / 2 - 0.1, gap - 0.1, 0.2, TEAL, shape=MSO_SHAPE.RIGHT_ARROW)
-row_bot = row_y + box_h
-# feedback loop OVER the row: Evaluator -> Reporter (verify / revise)
-top_y = row_y - 0.5
-_conn(s, cxs[4], row_y, cxs[4], top_y, GOLD, arrow=False, width_pt=2.25)
-_conn(s, cxs[4], top_y, cxs[3], top_y, GOLD, arrow=False, width_pt=2.25)
-_conn(s, cxs[3], top_y, cxs[3], row_y, GOLD, arrow=True, width_pt=2.25)
-t = _box(s, cxs[3] - 0.5, top_y - 0.38, cxs[4] - cxs[3] + 1.0, 0.3)
+    _run(p, lab, ls, labc or (WHITE if hot else INK), bold=True)
+    if sub:
+        p2 = sp.text_frame.add_paragraph()
+        p2.alignment = PP_ALIGN.CENTER
+        _run(p2, sub, ss, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
+
+
+# dashed panel grouping the parallel lanes
+panel = _rect(s, lane_cx - lane_w / 2 - 0.2, lane_cys[0] - lane_h / 2 - 0.16, lane_w + 0.4,
+              (lane_cys[-1] - lane_cys[0]) + lane_h + 0.32, RGBColor(0xF6, 0xF9, 0xFB),
+              shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+panel.line.color.rgb = RGBColor(0xBF, 0xCF, 0xD8)
+_pd = panel.line._get_or_add_ln()
+_pd.append(_pd.makeelement(qn("a:prstDash"), {"val": "dash"}))
+# arrows first (boxes drawn over the tails)
+for lcy in lane_cys:                                     # Planner fans out to each parallel lane
+    _conn(s, cx_p + mb_w / 2, cy, lane_cx - lane_w / 2, lcy, TEAL, width_pt=1.75)
+for lcy in lane_cys:                                     # each lane writes into H-MEM (converge)
+    _conn(s, lane_cx + lane_w / 2, lcy, cx_m - 0.8, cy, TEAL, width_pt=1.75)
+_conn(s, cx_m + 0.8, cy, cx_r - mb_w / 2, cy, TEAL, width_pt=2.0)     # H-MEM -> Reporter (read)
+_rect(s, cx_r + mb_w / 2 + 0.03, cy - 0.1, (cx_e - mb_w / 2) - (cx_r + mb_w / 2) - 0.06, 0.2,
+      TEAL, shape=MSO_SHAPE.RIGHT_ARROW)                   # Reporter -> Evaluator
+top_y = cy - mb_h / 2 - 0.45                              # feedback loop over the top: Evaluator -> Reporter
+_conn(s, cx_e, cy - mb_h / 2, cx_e, top_y, GOLD, arrow=False, width_pt=2.25)
+_conn(s, cx_e, top_y, cx_r, top_y, GOLD, arrow=False, width_pt=2.25)
+_conn(s, cx_r, top_y, cx_r, cy - mb_h / 2, GOLD, arrow=True, width_pt=2.25)
+# nodes
+_node(cx_p, cy, mb_w, mb_h, "Planner", "decompose")
+for (lab, sub), lcy in zip(lanes, lane_cys, strict=True):
+    _node(lane_cx, lcy, lane_w, lane_h, lab, sub, ls=12.5, ss=8.5)
+_node(cx_m, cy, 1.6, 1.3, "H-MEM", "shared evidence · provenance",
+      border=GOLD, fill=RGBColor(0xFD, 0xF3, 0xE3), labc=GOLD, ls=12, ss=8)
+_node(cx_r, cy, mb_w, mb_h, "Reporter", "cite claims")
+_node(cx_e, cy, mb_w, mb_h, "Evaluator", "verify / reject", hot=True)
+# labels
+t = _box(s, lane_cx - 1.5, 2.02, 3.0, 0.3)
 t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "✗ revise · re-cite  (≤ MAX_ROUNDS)", 11, GOLD, bold=True)
-# shared-memory lane BELOW the row: gatherers write, consumers read
-mem_y, mem_h = 4.7, 0.8
-mem_l, mem_r = cxs[1] - box_w / 2, cxs[4] + box_w / 2
-hm = _rect(s, mem_l, mem_y, mem_r - mem_l, mem_h, RGBColor(0xFD, 0xF3, 0xE3), shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-hm.line.color.rgb = GOLD
-hm.line.width = Pt(1.25)
-hm.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
-p = hm.text_frame.paragraphs[0]
-p.alignment = PP_ALIGN.CENTER
-_run(p, "H-MEM — shared evidence memory  ·  source · provenance", 12.5, GOLD, bold=True)
-SP = RGBColor(0x9A, 0xA7, 0xB2)
-for ci in (1, 2):   # Analyst, cross_source WRITE down into H-MEM
-    _conn(s, cxs[ci], row_bot, cxs[ci], mem_y, SP, arrow=True, width_pt=1.5)
-for ci in (3, 4):   # Reporter, Evaluator READ up from H-MEM
-    _conn(s, cxs[ci], mem_y, cxs[ci], row_bot, SP, arrow=True, width_pt=1.5)
-t = _box(s, 0.7, 5.75, 11.9, 0.5)
+_run(t.paragraphs[0], "sub-questions · in parallel", 11, TEAL, bold=True)
+t = _box(s, (cx_r + cx_e) / 2 - 1.4, top_y - 0.26, 2.8, 0.3)
 t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "Left to right, but not a pipeline — specialized roles share a common memory "
-                      "(gatherers write · consumers read), with a verify-and-revise feedback loop.", 12, MUTED)
+_run(t.paragraphs[0], "✗ revise (≤ MAX_ROUNDS)", 11, GOLD, bold=True)
+t = _box(s, 0.7, 5.6, 11.9, 0.7)
+t.paragraphs[0].alignment = PP_ALIGN.CENTER
+_run(t.paragraphs[0], "Planner fans out into parallel gatherer agents that write to shared memory; "
+                      "Reporter & Evaluator read it, and the Evaluator loops rejections back to revise.", 12, MUTED)
 _footer(s)
 
 # 6 — Cross-source (two columns)
