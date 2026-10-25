@@ -29,7 +29,7 @@ def t_strip_and_limit():
 
 def t_dict_rows():
     rows = run_sql("SELECT COUNT(*) AS n FROM ctgov.trials")
-    assert rows and isinstance(rows[0], dict) and str(rows[0]["n"]) == "100", rows
+    assert rows and isinstance(rows[0], dict) and int(rows[0]["n"]) >= 1, rows  # count, not an exact live value
 
 def t_sql_error_raises():
     try:

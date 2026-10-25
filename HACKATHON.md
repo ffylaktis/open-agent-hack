@@ -15,11 +15,13 @@
 - Agent loop proven end-to-end: Nemotron → run_sql tool-call → Zetaris → answer
 - `smoke_test.py` → 3 PASS (Zetaris web, Zetaris SQL, Nemotron)
 
-**🔨 To build (deadline Oct 27 23:45 UTC)**
-1. The product — Track-2 evidence agent (Planner → Analyst → Evaluator → Reporter); register a free public health API (ClinicalTrials.gov / openFDA) into Zetaris; every claim traced to SQL; Evaluator rejects unsupported claims.
-2. **Meterless Engine** (REQUIRED) — integrate H-Mem into a working feature (from meterless.ai/engines.html).
-3. **Route through Nightshift** (REQUIRED for Power rule + DGX prize) — NVIDIA key in Nightshift → Providers; assign Lightning lane; Console Runtime URL + token → `.env` METERLESS_*.
-4. Deliverables — demo video (1–4 min), slide deck, GitHub repo + README, sponsor-tech writeup.
+**✅ Built + QA-hardened** (15 unit tests + E2E green; ~14 commits)
+- Full Track-2 agent: Planner → Analyst → cross_source → Reporter → **Evaluator** (feedback loop + self-consistency); ClinicalTrials.gov + openFDA registered in Zetaris; every claim traced to its SQL; negative evidence; unsupported claims rejected.
+- Meterless **H-MEM** engine (evidence memory) + **Nightshift provider route** (signed receipts) + pinned Nemotron.
+- README + sponsor-tech writeup + slide outline + `SAMPLE_MODE` demo replay; resilient (phase-level error handling) + budget/caps.
+
+**🔨 Remaining (deadline Oct 27 23:45 UTC)**
+- Build the slide **deck** from `docs/slides-outline.md` · record the demo video (1–4 min) · submit on HackOS (declare pre-existing OSS libs: openai/requests/python-dotenv) · *(optional)* web UI.
 
 ---
 

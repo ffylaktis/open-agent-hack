@@ -128,3 +128,15 @@ Both data sources now live in Zetaris (`ctgov.trials`, `ctgov.interventions`, `o
 **Real-time data (confirmed):** Zetaris REST tables call the live API per query (not a snapshot), but each table is pinned to a fixed endpoint/condition at creation. Options: (A) agent registers sources on demand = truly real-time + general but slow/riskier live; (B) curated pre-registered + `CACHE TABLE`; (C) B for the recorded demo + one live on-demand registration as a flourish. **Leaning C.** Cache is of live data (refreshable), so the "real-time" story holds while the demo stays fast (`CACHE TABLE` 49.7s→1.2s) + `SAMPLE_MODE` fallback.
 
 **API query syntax (openFDA, retrieved):** `search=field:value`, AND/OR, quoted phrases, `.exact`, date ranges, `count=` aggregation, `limit`/`skip`; endpoints `device/classification`, `device/pma`, `device/event` (MAUDE), `drug/label`, `drug/event` (FAERS). CT.gov v2 working params already known: `query.cond`, `query.intr`, `pageSize`, `fields`.
+
+---
+
+## 10. Build + QA complete (status, 2026-10-24)
+
+Full agent built (Steps 1–8) and hardened over 4 review rounds (~35 issues) + an empirical QA pass; 15 unit tests + E2E green. Key outcomes:
+- **Pipeline:** Planner → Analyst → cross_source → Reporter → **Evaluator** (verify → reject → re-report feedback loop, bounded by MAX_ROUNDS=2) + self-consistency panel (EVAL_PANEL=2, unanimous, guards false positives).
+- **Grounding:** citation binding (every claim cites evidence_ids → the exact SQL); empty results stored as first-class absence evidence; **Option B** — indication evidence states the verified scoped fact (not an over-hedge), so the scoped negative is assertable while universal negatives + the rTMS over-claim are rejected.
+- **Sponsor tech:** Zetaris (read-only guard + admin DDL split; cross-source SQL join); Meterless H-MEM port (atomic, deduped, mission-scoped) + Nightshift route with signed receipts; pinned Nemotron; reasoning explicitly enabled for judgment roles.
+- **Robustness/observability:** phase-level error handling (no single blip crashes a run); run budget guards gather + evaluate; telemetry (routes/tokens/receipts) counts all calls incl. Evaluator; `SAMPLE_MODE` records/replays a bulletproof demo (`data/sample_run.json`).
+- **Hygiene:** `.env`/`.venv`/`reference/` gitignored + untracked; no secrets in tracked files; deps pinned; dead `main.py`/`DISPATCH` removed; tests assert counts (not brittle exact live values).
+- **Remaining:** slide deck (outline done), demo video, HackOS submission (declare OSS libs), optional UI.

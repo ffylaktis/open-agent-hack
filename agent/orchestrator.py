@@ -83,31 +83,45 @@ def run(question, mission=None, stress_claims=None):
     trace = Trace()
     t0 = time.monotonic()
 
-    p = planner.plan(question, trace)
+    try:
+        p = planner.plan(question, trace)
+    except Exception as e:                                   # planner failure -> degrade to one cross sub-q
+        trace.add("orchestrator", "plan_error", {"error": str(e)[:160]})
+        p = {"condition": question, "subquestions": [{"question": question, "source": "cross"}]}
     condition, subs = p["condition"], p["subquestions"]
 
     for s in subs:
         if time.monotonic() - t0 > RUN_BUDGET_SECONDS:
             trace.add("orchestrator", "budget_stop", {"phase": "gather", "elapsed": round(time.monotonic() - t0)})
             break
-        if s["source"] == "cross":
-            cross_source(condition, store, trace)
-        else:
-            analyst.analyze(dict(s), store, trace)
+        try:                                                 # a failed sub-question must not kill the run
+            if s["source"] == "cross":
+                cross_source(condition, store, trace)
+            else:
+                analyst.analyze(dict(s), store, trace)
+        except Exception as e:
+            trace.add("orchestrator", "gather_error", {"subq": s.get("question", "")[:80], "error": str(e)[:160]})
 
     evidence = store.all()
     by_id = {r["id"]: r for r in evidence}
 
     supported, all_dropped, feedback = {}, {}, None
     for rnd in range(MAX_ROUNDS):
-        claims = reporter.report(question, evidence, trace, feedback=feedback,
-                                 already_supported=list(supported.keys()))
+        try:
+            claims = reporter.report(question, evidence, trace, feedback=feedback,
+                                     already_supported=list(supported.keys()))
+        except Exception as e:
+            trace.add("orchestrator", "report_error", {"error": str(e)[:160]})
+            break
         verdicts = []
         for c in claims:
             if time.monotonic() - t0 > RUN_BUDGET_SECONDS:   # budget guards evaluate too, not just gather
                 trace.add("orchestrator", "budget_stop", {"phase": "evaluate", "elapsed": round(time.monotonic() - t0)})
                 break
-            verdicts.append(evaluator.evaluate(c, by_id, trace))
+            try:
+                verdicts.append(evaluator.evaluate(c, by_id, trace))
+            except Exception as e:
+                trace.add("orchestrator", "evaluate_error", {"claim": c["text"][:60], "error": str(e)[:160]})
         for v in verdicts:
             if v["supported"]:
                 supported[v["claim"]] = v
@@ -121,11 +135,11 @@ def run(question, mission=None, stress_claims=None):
         feedback = round_dropped                             # revise unsupported claims next round
 
     for sc in (stress_claims or []):                         # demo: candidate assertions vs ALL evidence
-        v = evaluator.evaluate({"text": sc, "evidence_ids": list(by_id)}, by_id, trace)
-        if v["supported"]:
-            supported[v["claim"]] = v
-        else:
-            all_dropped[v["claim"]] = v
+        try:
+            v = evaluator.evaluate({"text": sc, "evidence_ids": list(by_id)}, by_id, trace)
+            (supported.__setitem__(v["claim"], v) if v["supported"] else all_dropped.__setitem__(v["claim"], v))
+        except Exception as e:
+            trace.add("orchestrator", "evaluate_error", {"claim": sc[:60], "error": str(e)[:160]})
 
     sup = list(supported.values())
     dropped = [v for k, v in all_dropped.items() if k not in supported]

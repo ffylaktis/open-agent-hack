@@ -93,9 +93,10 @@ TraceEvent= {t, step:int, agent:str, action:"plan"|"sql"|"tool_result"|"claim"|"
 | Runaway (steps/time/tokens) | abort → partial answer + flag |
 
 ## 12. Config / env
-`ZETARIS_REST_URL, ZETARIS_ORG_ID, ZETARIS_API_KEY` · `METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN, METERLESS_MODEL` · `MODEL_BASE_URL, MODEL_API_KEY, NEMOTRON_MODEL` (fallback) · `SAMPLE_MODE, MAX_ROUNDS, MAX_SQL_RETRIES, SQL_ROW_LIMIT`.
+`ZETARIS_REST_URL, ZETARIS_ORG_ID, ZETARIS_API_KEY` · `METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN, METERLESS_MODEL` · `MODEL_BASE_URL, MODEL_API_KEY, NEMOTRON_MODEL` (fallback) · `SAMPLE_MODE, SAMPLE_PATH, MAX_ROUNDS(=2), MAX_SQL_RETRIES, MAX_STEPS, MAX_SUBQUESTIONS, MAX_CLAIMS, EVAL_PANEL, RUN_BUDGET_SECONDS, SQL_ROW_LIMIT`.
 
-## 13. Build plan (each = committed increment + executable accept test in `tests/`)
+## 13. Build plan — STATUS: steps 1–8 ✅ BUILT + QA-hardened (15 unit + E2E green; Meterless receipts); step 9 deliverables in progress
+(each = committed increment + executable accept test in `tests/`)
 1. **`tools_zetaris` hardening** — read-only guard, strip `;`, LIMIT, curated tools. *Accept:* rejects a non-SELECT; device-interventions query returns rows.
 2. **`memory.py` (H-MEM)** — record+Store+Retrieval+TrustLedger. *Accept:* recall feature-test passes; record without `source` rejected.
 3. **Analyst** — SubQ→SQL→Evidence (+retry). *Accept:* returns Evidence for the neuromod query; recovers from one bad SQL.
