@@ -7,11 +7,14 @@ orchestrator.run(). Defaults to instant SAMPLE_MODE replay; a 'Run live' toggle 
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+import requests
 from dotenv import load_dotenv
 load_dotenv()
 
 from agent.orchestrator import run, _load_sample              # noqa: E402
 from agent.config import SAMPLE_PATH                           # noqa: E402
+from agent.tools_zetaris import ReadOnlyError, SqlError, run_sql  # noqa: E402
 
 DEMO_Q = ("What neuromodulation is being trialed for anorexia nervosa, "
           "and is any of it FDA-cleared for that use?")
@@ -141,6 +144,41 @@ $("replay").onclick=()=>ask(false); $("runlive").onclick=()=>ask(true);
 HTML = HTML.replace("%DEMO%", json.dumps(DEMO_Q))
 
 
+def healthz():
+    """Dependency snapshot for ops/demo. Never raises; a down dep is JSON 'down', not a 500."""
+    zetaris, reason = "ok", None
+    try:
+        run_sql("SELECT 1")
+    except (SqlError, ReadOnlyError, Exception) as e:
+        zetaris, reason = "down", str(e)[:200]
+
+    base = os.environ.get("METERLESS_BASE_URL")
+    if not base:
+        meterless = "unset"
+    else:
+        try:
+            token = os.environ.get("METERLESS_RUNTIME_TOKEN", "")
+            r = requests.get(
+                base.rstrip("/") + "/models",
+                headers={"Authorization": "Bearer " + token},
+                timeout=3,
+            )
+            meterless = "ok" if r.status_code < 500 else "down"
+        except Exception:
+            meterless = "down"
+
+    sample = "present" if os.path.exists(SAMPLE_PATH) else "missing"
+    body = {
+        "zetaris": zetaris,
+        "meterless": meterless,
+        "sample": sample,
+        "status": "ok" if zetaris == "ok" else "degraded",
+    }
+    if reason:
+        body["reason"] = reason
+    return body
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json"):
         data = body.encode("utf-8") if isinstance(body, str) else body
@@ -153,6 +191,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self._send(200, HTML, "text/html; charset=utf-8")
+        elif self.path == "/healthz":
+            try:
+                self._send(200, json.dumps(healthz()))
+            except Exception as e:                       # never 500 — ops still gets a body
+                self._send(200, json.dumps({
+                    "zetaris": "down", "meterless": "down", "sample": "missing",
+                    "status": "degraded", "reason": str(e)[:200],
+                }))
         else:
             self._send(404, "not found", "text/plain")
 

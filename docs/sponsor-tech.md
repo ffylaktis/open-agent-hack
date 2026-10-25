@@ -34,7 +34,10 @@ How each sponsor technology is integrated, and what was unique about our use.
   claims, with a unanimous self-consistency panel guarding false positives.
 
 ## Cursor
-- Development environment for building and iterating on the agent (optional per §5.1).
+- **Dev environment** for building and iterating on the agent. Concretely, **Cursor's Composer agent
+  implemented the `/healthz` stack-health endpoint** (`agent/web.py`) and its tests — live reachability
+  checks for Zetaris (a `SELECT 1` probe) and Meterless (a `/models` ping) plus demo-sample presence,
+  returning a JSON status that never 500s. (Cursor is optional per §5.1.)
 
 ## One-line architecture
 `Zetaris (governed SQL) → Nemotron via Meterless (reasoning + receipts) → H-MEM (evidence memory) → Evaluator gate`.
