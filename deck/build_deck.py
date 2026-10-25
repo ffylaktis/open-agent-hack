@@ -25,6 +25,9 @@ DIM = RGBColor(0xA9, 0xB7, 0xC0)
 FONT = "Segoe UI"
 FOOT = ("Evidence-Intelligence Agent · Open Agent Hackathon 2026 · Track 02 · "
         "Fylaktis Fylaktou · UCLA Semel Institute")
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+UI_FULL = os.path.join(ASSETS, "ui_full.png")             # captured by deck/capture_ui.py
+UI_REJECTED = os.path.join(ASSETS, "ui_rejected.png")
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -78,8 +81,8 @@ def _header(slide, kicker, title, accent=TEAL):
     _rect(slide, 0.72, 1.92, 1.1, 0.055, accent)
 
 
-def _bullets(slide, bullets, accent=TEAL, top=2.3, size=18, gap=12):
-    tf = _box(slide, 0.7, top, 11.9, 4.5)
+def _bullets(slide, bullets, accent=TEAL, top=2.3, size=18, gap=12, left=0.7, width=11.9):
+    tf = _box(slide, left, top, width, 4.5)
     first = True
     for b in bullets:
         p = tf.paragraphs[0] if first else tf.add_paragraph()
@@ -104,6 +107,20 @@ def content_slide(kicker, title, bullets, accent=TEAL):
     _bullets(s, bullets, accent)
     _footer(s)
     return s
+
+
+def _picture(slide, path, left, top, max_w, max_h):
+    from PIL import Image
+    with Image.open(path) as im:
+        iw, ih = im.size
+    ar = iw / ih
+    w, h = max_w, max_w / ar
+    if h > max_h:
+        h, w = max_h, max_h * ar
+    pic = slide.shapes.add_picture(path, Inches(left), Inches(top), width=Inches(w), height=Inches(h))
+    pic.line.color.rgb = LINE
+    pic.line.width = Pt(1)
+    return pic
 
 
 # 1 — Title
@@ -147,13 +164,22 @@ _run(tf.paragraphs[0],
      18, MUTED)
 _footer(s)
 
-# 4 — Solution
-content_slide("The solution", "Grounded answers, with receipts", [
+# 4 — Solution (text left; hero UI screenshot right when captured, else full-width text)
+S4_BULLETS = [
     ("Grounded, not guessed.", "Gathers governed evidence and cites the exact SQL behind every claim."),
     ("An Evaluator that deletes what it can't back.", "Each claim is re-checked against only its own evidence."),
     ("Honest scope.", "Affirms the scoped conclusion; rejects the over-claim "
                       "“rTMS is FDA-cleared for anorexia.”"),
-])
+]
+if os.path.exists(UI_FULL):
+    s = prs.slides.add_slide(BLANK)
+    _bg(s, WHITE)
+    _header(s, "The solution", "Grounded answers, with receipts")
+    _bullets(s, S4_BULLETS, top=2.35, left=0.7, width=5.95, size=17, gap=16)
+    _picture(s, UI_FULL, left=7.05, top=2.2, max_w=5.6, max_h=4.55)
+    _footer(s)
+else:
+    content_slide("The solution", "Grounded answers, with receipts", S4_BULLETS)
 
 # 5 — Architecture
 s = prs.slides.add_slide(BLANK)
@@ -219,13 +245,24 @@ _run(tf.paragraphs[0], "Trialed ≠ cleared.  ", 18, RED, bold=True)
 _run(tf.paragraphs[0], "The agent surfaces the gap explicitly — that reconciliation is the answer.", 18, INK)
 _footer(s)
 
-# 7 — Integrity moment
-content_slide("The integrity moment · Demo", "It rejects what it can't prove", [
+# 7 — Integrity moment (text left; real screenshot of the Rejected panel right when captured)
+S7_BULLETS = [
     ("Rejected:", "“rTMS is FDA-cleared to treat anorexia nervosa” — the devices are cleared, but no "
                   "record references anorexia."),
     ("Rejected:", "over-broad universal negatives — scoped down to exactly what was searched."),
     ("Every rejection carries the Evaluator's reason.", "The anti-hallucination story, made visible."),
-], accent=RED)
+]
+if os.path.exists(UI_REJECTED):
+    s = prs.slides.add_slide(BLANK)
+    _bg(s, WHITE)
+    _header(s, "The integrity moment · Demo", "It rejects what it can't prove", accent=RED)
+    _bullets(s, S7_BULLETS, accent=RED, top=2.35, left=0.7, width=5.95, size=16, gap=14)
+    cap = _box(s, 7.05, 2.2, 5.6, 0.3)
+    _run(cap.paragraphs[0], "The Evaluator's actual output (live UI):", 11, MUTED, italic=True)
+    _picture(s, UI_REJECTED, left=7.05, top=2.55, max_w=5.6, max_h=4.2)
+    _footer(s)
+else:
+    content_slide("The integrity moment · Demo", "It rejects what it can't prove", S7_BULLETS, accent=RED)
 
 # 8 — Stack & sponsor tech
 content_slide("Sponsor tech", "Built on the sponsor stack", [
