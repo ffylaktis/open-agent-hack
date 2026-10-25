@@ -19,6 +19,7 @@ INK = RGBColor(0x14, 0x20, 0x2B)
 TEAL = RGBColor(0x12, 0x8A, 0x98)
 GOLD = RGBColor(0xB8, 0x84, 0x2A)
 RED = RGBColor(0xC0, 0x39, 0x2B)
+RED_BRIGHT = RGBColor(0xE2, 0x5C, 0x4D)   # reads on the dark slides
 MUTED = RGBColor(0x5B, 0x6B, 0x7A)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 LINE = RGBColor(0xE3, 0xE9, 0xEF)
@@ -36,7 +37,7 @@ prs.slide_height = Inches(7.5)
 BLANK = prs.slide_layouts[6]
 
 
-def _run(p, text, size, color, bold=False, italic=False):
+def _run(p, text, size, color, bold=False, italic=False, strike=False):
     r = p.add_run()
     r.text = text
     r.font.size = Pt(size)
@@ -44,6 +45,11 @@ def _run(p, text, size, color, bold=False, italic=False):
     r.font.bold = bold
     r.font.italic = italic
     r.font.name = FONT
+    if strike:
+        try:
+            r.font._rPr.set("strike", "sngStrike")
+        except Exception:
+            pass
     return r
 
 
@@ -95,8 +101,9 @@ def _header(slide, kicker, title, accent=TEAL):
     _rect(slide, 0.72, 1.92, 1.1, 0.055, accent)
 
 
-def _bullets(slide, bullets, accent=TEAL, top=2.3, size=18, gap=12, left=0.7, width=11.9):
-    tf = _box(slide, left, top, width, 4.5)
+def _bullets(slide, bullets, accent=TEAL, top=2.3, size=18, gap=12, left=0.7, width=11.9,
+             anchor=MSO_ANCHOR.TOP, height=4.5):
+    tf = _box(slide, left, top, width, height, anchor=anchor)
     first = True
     for b in bullets:
         p = tf.paragraphs[0] if first else tf.add_paragraph()
@@ -118,7 +125,7 @@ def content_slide(kicker, title, bullets, accent=TEAL):
     s = prs.slides.add_slide(BLANK)
     _bg(s, WHITE)
     _header(s, kicker, title, accent)
-    _bullets(s, bullets, accent)
+    _bullets(s, bullets, accent, top=2.15, height=4.7, anchor=MSO_ANCHOR.MIDDLE)
     _footer(s)
     return s
 
@@ -135,6 +142,21 @@ def _picture(slide, path, left, top, max_w, max_h):
     pic.line.color.rgb = LINE
     pic.line.width = Pt(1)
     return pic
+
+
+def _stamp(slide, left, top, w, h, text, color, rot=-8, size=15):
+    sp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(left), Inches(top), Inches(w), Inches(h))
+    sp.fill.background()
+    sp.line.color.rgb = color
+    sp.line.width = Pt(2.25)
+    sp.rotation = rot
+    sp.shadow.inherit = False
+    tf = sp.text_frame
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    _run(p, text, size, color, bold=True)
+    return sp
 
 
 # 1 — Title
@@ -275,24 +297,24 @@ _run(tf.paragraphs[0], "Trialed ≠ cleared.  ", 18, RED, bold=True)
 _run(tf.paragraphs[0], "The agent surfaces the gap explicitly — that reconciliation is the answer.", 18, INK)
 _footer(s)
 
-# 7 — Integrity moment (text left; real screenshot of the Rejected panel right when captured)
-S7_BULLETS = [
-    ("Rejected:", "“rTMS is FDA-cleared to treat anorexia nervosa” — the devices are cleared, but no "
-                  "record references anorexia."),
-    ("Rejected:", "over-broad universal negatives — scoped down to exactly what was searched."),
-    ("Every rejection carries the Evaluator's reason.", "The anti-hallucination story, made visible."),
-]
-if os.path.exists(UI_REJECTED):
-    s = prs.slides.add_slide(BLANK)
-    _bg(s, WHITE)
-    _header(s, "The integrity moment · Demo", "It rejects what it can't prove", accent=RED)
-    _bullets(s, S7_BULLETS, accent=RED, top=2.35, left=0.7, width=5.95, size=16, gap=14)
-    cap = _box(s, 7.05, 2.2, 5.6, 0.3)
-    _run(cap.paragraphs[0], "The Evaluator's actual output (live UI):", 11, MUTED, italic=True)
-    _picture(s, UI_REJECTED, left=7.05, top=2.55, max_w=5.6, max_h=4.2)
-    _footer(s)
-else:
-    content_slide("The integrity moment · Demo", "It rejects what it can't prove", S7_BULLETS, accent=RED)
+# 7 — The integrity moment: the climax — dark, dramatic, the agent catching a false claim
+s = prs.slides.add_slide(BLANK)
+_bg(s, INK)
+t = _box(s, 0.7, 0.55, 11.9, 0.4)
+_run(t.paragraphs[0], "THE INTEGRITY MOMENT", 13, RED_BRIGHT, bold=True)
+t = _box(s, 0.7, 1.0, 12.0, 1.0)
+_run(t.paragraphs[0], "It deletes what it can't prove.", 36, WHITE, bold=True)
+_rect(s, 0.72, 1.98, 1.1, 0.055, RED_BRIGHT)
+t = _box(s, 0.7, 2.75, 11.0, 0.4)
+_run(t.paragraphs[0], "The agent was handed a plausible, false claim:", 16, DIM)
+t = _box(s, 0.7, 3.3, 8.7, 1.0)
+_run(t.paragraphs[0], "rTMS is FDA-cleared to treat anorexia nervosa", 27, DIM, bold=True, strike=True)
+_stamp(s, 9.75, 3.05, 2.75, 1.05, "✗  UNSUPPORTED", RED_BRIGHT, rot=-9, size=16)
+t = _box(s, 0.7, 4.55, 11.4, 1.4)
+_run(t.paragraphs[0], "The cited records show those devices are cleared — but not one references anorexia. "
+                      "Unsupported, so the agent refuses to say it.", 18, RGBColor(0xDD, 0xE6, 0xEB))
+t = _box(s, 0.7, 6.15, 11.9, 0.5)
+_run(t.paragraphs[0], "Every rejection ships with its reason — that is the “why.”", 15, TEAL, bold=True)
 
 # 8 — Stack & sponsor tech
 content_slide("Sponsor tech", "Built on the sponsor stack", [
@@ -303,21 +325,33 @@ content_slide("Sponsor tech", "Built on the sponsor stack", [
     ("Telemetry per run:", "24 Meterless-routed calls · 41,480 tokens · signed receipts."),
 ], accent=TEAL)
 
-# 9 — What's unique + verified
-content_slide("What's unique — and verified · Technical", "Unique, and proven to work", [
+# 9 — unique + verified, with a ✓ VERIFIED stamp (the receipt motif)
+s = prs.slides.add_slide(BLANK)
+_bg(s, WHITE)
+_header(s, "What's unique — and verified · Technical", "Unique, and proven to work")
+_bullets(s, [
     ("Claim-level citation binding.", "Negative / absence evidence is first-class."),
     ("Self-consistency gate.", "Approvals are re-checked by independent sampled votes."),
     ("H-MEM as evidence memory.", "Mandatory source/provenance; provable Meterless receipts."),
     ("Verified:", "ruff-clean · GitHub Actions CI · 15 offline + live integration tests · "
                   "eval scorecard 8/8 · SAMPLE_MODE replay."),
-], accent=TEAL)
+], top=2.15, height=4.7, anchor=MSO_ANCHOR.MIDDLE, width=9.1)
+_stamp(s, 10.1, 2.5, 2.5, 1.0, "✓  VERIFIED", TEAL, rot=-8, size=16)
+_footer(s)
 
-# 10 — Future
-content_slide("Where this goes · Future", "Where this goes", [
-    ("Richer indication signal.", "Device classification + product codes; more conditions and sources."),
-    ("Deeper adjudication.", "Multi-judge panel; live on-demand source registration."),
-    ("The direction medical AI has to go:", "trustworthy, auditable, grounded — an answer you can check."),
-], accent=TEAL)
+# 10 — Close: dark bookend — the resonant button, with the vision folded in
+s = prs.slides.add_slide(BLANK)
+_bg(s, INK)
+t = _box(s, 0.9, 0.8, 11.5, 0.5)
+_run(t.paragraphs[0], "WHERE THIS GOES", 13, TEAL, bold=True)
+_rect(s, 0.92, 2.35, 1.4, 0.06, TEAL)
+t = _box(s, 0.9, 2.6, 11.6, 1.3)
+_run(t.paragraphs[0], "An answer you can check.", 46, WHITE, bold=True)
+t = _box(s, 0.9, 4.2, 11.6, 1.1)
+_run(t.paragraphs[0], "Next: richer indication signals · more conditions & sources · a multi-judge panel — "
+                      "trustworthy, auditable AI for clinical evidence.", 18, DIM)
+t = _box(s, 0.9, 6.5, 11.6, 0.5)
+_run(t.paragraphs[0], "Fylaktis Fylaktou · UCLA Semel Institute · Open Agent Hackathon 2026 · Track 02", 13, DIM)
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Evidence-Intelligence-Agent.pptx")
 prs.save(OUT)
