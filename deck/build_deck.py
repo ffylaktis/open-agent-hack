@@ -85,6 +85,9 @@ def _bullets(slide, bullets, accent=TEAL, top=2.3, size=18, gap=12):
         p = tf.paragraphs[0] if first else tf.add_paragraph()
         first = False
         p.space_after = Pt(gap)
+        pPr = p._p.get_or_add_pPr()           # hanging indent: wrapped lines align under the text, not the ▸
+        pPr.set("marL", str(int(Inches(0.33))))
+        pPr.set("indent", str(int(Inches(-0.33))))
         _run(p, "▸  ", size, accent, bold=True)
         if isinstance(b, tuple):
             _run(p, b[0], size, INK, bold=True)
@@ -134,11 +137,11 @@ _bg(s, WHITE)
 tf = _box(s, 0.7, 0.5, 11.9, 0.4)
 _run(tf.paragraphs[0], "THE DEMO QUESTION", 13, TEAL, bold=True)
 _rect(s, 0.72, 1.0, 1.1, 0.055, TEAL)
-tf = _box(s, 0.9, 2.5, 11.5, 2.4, anchor=MSO_ANCHOR.MIDDLE)
+tf = _box(s, 0.9, 1.95, 11.5, 2.0, anchor=MSO_ANCHOR.MIDDLE)
 _run(tf.paragraphs[0],
      "“What neuromodulation is being trialed for anorexia nervosa, "
      "and is any of it FDA-cleared for that use?”", 32, INK, bold=True, italic=True)
-tf = _box(s, 0.9, 5.2, 11.5, 1.0)
+tf = _box(s, 0.9, 4.25, 11.5, 1.0)
 _run(tf.paragraphs[0],
      "A real cross-source question where the honest answer is nuanced — and easy to get confidently wrong.",
      18, MUTED)
