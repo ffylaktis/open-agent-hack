@@ -54,11 +54,17 @@ def analyze(subq, store, trace):
             except Exception:
                 args = {}
             args = {k: v for k, v in args.items() if k in _ACCEPTS.get(name, set())}
+            fn = DISPATCH.get(name)
+            if fn is None:                                   # hallucinated tool name — don't crash
+                trace.add("analyst", "tool_error", {"tool": name, "error": "unknown tool"})
+                messages.append({"role": "tool", "tool_call_id": tc.id,
+                                 "content": f"ERROR: unknown tool '{name}'."})
+                continue
             try:
-                rows = DISPATCH[name](**args)
+                rows = fn(**args)
                 trace.add("analyst", "tool_result", {"tool": name, "args": args, "n": len(rows)})
                 messages.append({"role": "tool", "tool_call_id": tc.id,
-                                 "content": json.dumps(rows[:30], default=str)})
+                                 "content": json.dumps(rows[:10], default=str)})  # cap context fed back
                 if rows:
                     ev = store.write(Evidence(
                         content=(f"Q: {subq['question']} | {name}({args}) -> {len(rows)} rows; "

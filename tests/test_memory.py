@@ -47,7 +47,18 @@ def t_dedupe():
     assert len(s.records) == 2, f"dedupe failed: {len(s.records)} records"
     os.remove(TMP)
 
+def t_mission_scoping():
+    if os.path.exists(TMP):
+        os.remove(TMP)
+    MemoryStore(path=TMP, mission="runA").write(_ev())        # evidence under mission A
+    other = MemoryStore(path=TMP, mission="runB")             # different mission, same file
+    assert other.retrieve(query="rtms anorexia", tags=["rtms"]) == [], "mission leak: runB saw runA"
+    same = MemoryStore(path=TMP, mission="runA")
+    assert same.retrieve(query="rtms anorexia", tags=["rtms"]), "runA could not recall its own evidence"
+    os.remove(TMP)
+
 for n, f in [("reject no-source", t_reject_no_source),
              ("cross-run recall + ledger", t_crossrun_recall_and_ledger),
-             ("dedupe by (source,sql)", t_dedupe)]:
+             ("dedupe by (source,sql)", t_dedupe),
+             ("mission scoping (no leak)", t_mission_scoping)]:
     check(n, f)

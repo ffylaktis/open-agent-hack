@@ -47,13 +47,22 @@ class TrustLedger:
 
 
 class MemoryStore:
-    """Tiered persistent store (working layer), JSON-backed, atomic writes, de-duplicated."""
-    def __init__(self, path=HMEM_PATH):
+    """Tiered persistent store (working layer), JSON-backed, atomic writes, de-duplicated.
+
+    `mission` scopes a run: writes are stamped with it and retrieve() only returns
+    records of the current mission (H-MEM chatId/missionId scoping) — so evidence from
+    one question never contaminates another. mission=None sees everything (tests/tools).
+    """
+    def __init__(self, path=HMEM_PATH, mission=None):
         self.path = path
+        self.mission = mission
         self.records = {}
         self.ledger = TrustLedger()
-        self._keys = {}            # dedupe_key -> id
+        self._keys = {}            # "mission|dedupe_key" -> id
         self._load()
+
+    def _full_key(self, mission, base):
+        return f"{mission}|{base}"
 
     def _load(self):
         if self.path and os.path.exists(self.path):
@@ -61,7 +70,8 @@ class MemoryStore:
                 data = json.load(open(self.path, encoding="utf-8"))
                 self.records = {r["id"]: r for r in data.get("records", [])}
                 self.ledger = TrustLedger(data.get("ledger", []))
-                self._keys = {r.get("_key"): r["id"] for r in self.records.values() if r.get("_key")}
+                self._keys = {self._full_key(r.get("mission"), r.get("_key")): r["id"]
+                              for r in self.records.values() if r.get("_key")}
             except Exception as e:                 # do not silently lose memory
                 print(f"[H-MEM] WARNING: could not load {self.path}: {e}", file=sys.stderr)
 
@@ -76,28 +86,32 @@ class MemoryStore:
         os.replace(tmp, self.path)                 # atomic
 
     def write(self, ev: Evidence) -> Evidence:
-        key = ev.dedupe_key()
-        if key in self._keys:                      # de-dupe: return the existing record's view
-            existing = self.records[self._keys[key]]
-            self.ledger.record("dedupe", existing["id"], note=key)
+        base = ev.dedupe_key()
+        full = self._full_key(self.mission, base)
+        if full in self._keys:                     # de-dupe within this mission
+            self.ledger.record("dedupe", self._keys[full], note=full)
             return ev
         rec = asdict(ev)
-        rec["_key"] = key
+        rec["_key"] = base
+        rec["mission"] = self.mission
         self.records[ev.id] = rec
-        self._keys[key] = ev.id
+        self._keys[full] = ev.id
         self.ledger.record("write", ev.id, note=ev.source)
         self._persist()
         return ev
 
     def all(self):
-        return list(self.records.values())
+        return [r for r in self.records.values() if self.mission is None or r.get("mission") == self.mission]
 
     def retrieve(self, query="", tags=None, limit=10):
-        """Rank by tag/entity + keyword match; confidence only breaks ties. No embeddings."""
+        """Rank by tag/entity + keyword match; confidence only breaks ties. No embeddings.
+        Scoped to the current mission (if set)."""
         want = set(t.lower() for t in (tags or []))
         words = [w for w in query.lower().split() if len(w) > 3]
         scored = []
         for r in self.records.values():
+            if self.mission is not None and r.get("mission") != self.mission:
+                continue
             have = set(t.lower() for t in r.get("tags", [])) | set(e.lower() for e in r.get("entities", []))
             match = 2 * len(want & have) + sum(1 for w in words if w in r.get("content", "").lower())
             if match > 0:                           # require a real match to surface

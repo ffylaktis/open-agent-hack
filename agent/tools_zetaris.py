@@ -10,11 +10,11 @@ import os
 import re
 import uuid
 import requests
+from agent.config import SQL_ROW_LIMIT
 
 ZETARIS_REST_URL = os.environ.get("ZETARIS_REST_URL", "http://localhost:8888/api/v1.0")
 ZETARIS_ORG_ID = os.environ.get("ZETARIS_ORG_ID", "1")
 ZETARIS_API_KEY = os.environ.get("ZETARIS_API_KEY", "")
-SQL_ROW_LIMIT = int(os.environ.get("SQL_ROW_LIMIT", "200"))
 
 _READ_ONLY = ("select", "with", "show", "describe", "desc", "explain")
 _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
@@ -50,17 +50,20 @@ def _guard(sql: str) -> str:
 
 
 def _execute(sql: str) -> list:
-    resp = requests.post(
-        ZETARIS_REST_URL.rstrip("/") + "/sql-editor/sqls/run",
-        headers={
-            "Authorization": "Bearer " + ZETARIS_API_KEY,
-            "X-Org-ID": ZETARIS_ORG_ID,
-            "X-Request-ID": str(uuid.uuid4()),
-            "Content-Type": "application/json",
-        },
-        json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": SQL_ROW_LIMIT},
-        timeout=60,
-    )
+    try:
+        resp = requests.post(
+            ZETARIS_REST_URL.rstrip("/") + "/sql-editor/sqls/run",
+            headers={
+                "Authorization": "Bearer " + ZETARIS_API_KEY,
+                "X-Org-ID": ZETARIS_ORG_ID,
+                "X-Request-ID": str(uuid.uuid4()),
+                "Content-Type": "application/json",
+            },
+            json={"queryId": str(uuid.uuid4()), "sql": sql, "source": "SqlEditor", "limit": SQL_ROW_LIMIT},
+            timeout=60,
+        )
+    except requests.RequestException as e:                 # network/timeout -> uniform SqlError
+        raise SqlError(f"Zetaris request failed: {str(e)[:200]}")
     if resp.status_code >= 400:
         try:
             msg = resp.json().get("msg") or resp.text
