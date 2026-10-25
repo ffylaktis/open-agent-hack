@@ -4,7 +4,9 @@ chat() returns (message, meta). meta = {route, receipt_id, routed_model, usage, 
 The Meterless receipt (routed_model/cost) is captured for the Sponsor-tech story + DGX prize;
 a fallback_reason is recorded when Meterless is unreachable so we never silently lose the route.
 """
+import json
 import os
+import re
 from openai import OpenAI
 from agent.config import PINNED_MODEL
 
@@ -61,3 +63,25 @@ def chat(messages, tools=None, temperature=0, think=False, require_meterless=Fal
                                          "usage": _usage(comp), "receipt_id": None,
                                          "routed_model": _NV_MODEL, "fallback_reason": fallback_reason}
     raise RuntimeError("No model route available — " + (fallback_reason or "no providers configured"))
+
+
+def call_structured(messages, tool, think=True):
+    """Get structured output by offering a single tool and parsing its call (reasoning ON by
+    default — these are judgment roles). Falls back to parsing a JSON object from content.
+    Returns (dict, meta); {} if nothing parseable."""
+    name = tool["function"]["name"]
+    msg, meta = chat(messages, tools=[tool], think=think)
+    if msg.tool_calls:
+        for tc in msg.tool_calls:
+            if tc.function.name == name:
+                try:
+                    return json.loads(tc.function.arguments or "{}"), meta
+                except Exception:
+                    break
+    m = re.search(r"\{.*\}", msg.content or "", re.S)
+    if m:
+        try:
+            return json.loads(m.group(0)), meta
+        except Exception:
+            pass
+    return {}, meta
