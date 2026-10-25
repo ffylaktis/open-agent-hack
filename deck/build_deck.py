@@ -272,6 +272,13 @@ for k in range(4):
     _ring_arrow(s, pos[k], pos[k + 1], TEAL)
 # the feedback edge — Evaluator back to Reporter — bowed outside the ring, gold
 _ring_arrow(s, pos[4], pos[3], GOLD, width=2.25, perp=0.62)
+# shared-memory spokes: Analyst & cross_source WRITE to H-MEM; Reporter & Evaluator READ it
+hub = (cx, cy)
+SPOKE = RGBColor(0x9A, 0xA7, 0xB2)
+for ri in (1, 2):
+    _ring_arrow(s, pos[ri], hub, SPOKE, width=1.25, off1=1.0, off2=1.2)
+for ri in (3, 4):
+    _ring_arrow(s, hub, pos[ri], SPOKE, width=1.25, off1=1.2, off2=1.0)
 for k, (lab, sub) in enumerate(nodes):
     x, y = pos[k]
     hot = lab == "Evaluator"
@@ -304,8 +311,8 @@ t.paragraphs[0].alignment = PP_ALIGN.CENTER
 _run(t.paragraphs[0], "✗ revise & re-cite", 11, GOLD, bold=True)
 t = _box(s, 0.7, 6.55, 11.9, 0.45)
 t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "A cycle, not a line — specialized roles · separate Nemotron calls · the Evaluator loops "
-                      "unsupported claims back (≤ MAX_ROUNDS) and ships only when every claim is backed.", 12, MUTED)
+_run(t.paragraphs[0], "A cycle, not a line — roles share evidence through H-MEM (gatherers write · "
+                      "Reporter/Evaluator read); unsupported claims loop back to revise (≤ MAX_ROUNDS).", 12, MUTED)
 _footer(s)
 
 # 6 — Cross-source (two columns)
