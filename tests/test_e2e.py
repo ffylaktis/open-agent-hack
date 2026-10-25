@@ -19,9 +19,12 @@ def req(cond, msg):
     global ok
     print(("PASS " if cond else "FAIL ") + msg); ok = ok and cond
 
+tel = res.get("telemetry", {})
 req(bool(res["answer"]), "produced an answer")
 req(any(OVERCLAIM[:20] in t for t in dropped), "Evaluator rejected the FDA-cleared overclaim")
 req("ctgov" in srcs and "openfda" in srcs, "cross-source evidence present (ctgov + openfda)")
 req(all(v["evidence_ids"] or not v["supported"] for v in res["supported"]), "every supported claim is cited")
-print(f"  supported={len(res['supported'])} dropped={len(res['dropped'])} evidence={len(res['evidence'])} route=meterless")
+req(tel.get("total_tokens", 0) > 0, "telemetry captured token usage")
+req("meterless" in tel.get("routes", {}), "ran on the Meterless route")
+print(f"  supported={len(res['supported'])} dropped={len(res['dropped'])} evidence={len(res['evidence'])} telemetry={tel}")
 print("E2E OK" if ok else "E2E FAILED")

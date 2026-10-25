@@ -44,8 +44,9 @@ def chat(messages, tools=None, temperature=0, think=False, require_meterless=Fal
     kw = dict(messages=messages, temperature=temperature)
     if tools:
         kw["tools"] = tools
-    if not think:
-        kw["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+    # set reasoning EXPLICITLY both ways — omitting it lets the model default (often off),
+    # which would silently disable CoT for judgment roles that pass think=True.
+    kw["extra_body"] = {"chat_template_kwargs": {"enable_thinking": bool(think)}}
 
     fallback_reason = None
     if _meterless:
