@@ -1,5 +1,7 @@
 # Evidence-Intelligence Agent — Open Agent Hackathon 2026
 
+[![CI](https://github.com/ffylaktis/open-agent-hack/actions/workflows/ci.yml/badge.svg)](https://github.com/ffylaktis/open-agent-hack/actions/workflows/ci.yml)
+
 **Track 02 · "The Agent That Can Explain Why."** An AI research analyst that answers clinical-evidence
 questions **and shows its receipts** — grounded in live governed data, with an Evaluator that **deletes any
 claim it can't back with evidence**.
