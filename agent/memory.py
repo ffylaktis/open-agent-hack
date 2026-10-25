@@ -6,6 +6,7 @@ de-duplicated. (reference/meterless-hmem/AGENTS.md)
 import json
 import os
 import sys
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field, asdict, fields
@@ -67,6 +68,7 @@ class MemoryStore:
         self.records = {}
         self.ledger = TrustLedger()
         self._keys = {}            # "mission|dedupe_key" -> id
+        self._lock = threading.Lock()   # parallel sub-question agents write concurrently
         self._load()
 
     def _full_key(self, mission, base):
@@ -94,20 +96,21 @@ class MemoryStore:
         os.replace(tmp, self.path)                 # atomic
 
     def write(self, ev: Evidence) -> Evidence:
-        base = ev.dedupe_key()
-        full = self._full_key(self.mission, base)
-        if full in self._keys:                     # de-dupe within this mission
-            existing = self.records[self._keys[full]]
-            self.ledger.record("dedupe", existing["id"], note=full)
-            return _evidence_from_rec(existing)     # return the STORED record (correct id)
-        rec = asdict(ev)
-        rec["_key"] = base
-        rec["mission"] = self.mission
-        self.records[ev.id] = rec
-        self._keys[full] = ev.id
-        self.ledger.record("write", ev.id, note=ev.source)
-        self._persist()
-        return ev
+        with self._lock:                            # atomic check-then-insert across concurrent agents
+            base = ev.dedupe_key()
+            full = self._full_key(self.mission, base)
+            if full in self._keys:                  # de-dupe within this mission
+                existing = self.records[self._keys[full]]
+                self.ledger.record("dedupe", existing["id"], note=full)
+                return _evidence_from_rec(existing)  # return the STORED record (correct id)
+            rec = asdict(ev)
+            rec["_key"] = base
+            rec["mission"] = self.mission
+            self.records[ev.id] = rec
+            self._keys[full] = ev.id
+            self.ledger.record("write", ev.id, note=ev.source)
+            self._persist()
+            return ev
 
     def all(self):
         return [r for r in self.records.values() if self.mission is None or r.get("mission") == self.mission]

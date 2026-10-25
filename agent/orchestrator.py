@@ -6,6 +6,7 @@ Run:   python -m agent.orchestrator "your question"
 Record a demo sample:  python -m agent.orchestrator --record "..."
 Replay (bulletproof demo): set SAMPLE_MODE=1 in .env
 """
+import concurrent.futures
 import json
 import os
 import sys
@@ -92,17 +93,23 @@ def run(question, mission=None, stress_claims=None, allow_sample=True):
         p = {"condition": question, "subquestions": [{"question": question, "source": "cross"}]}
     condition, subs = p["condition"], p["subquestions"]
 
-    for s in subs:
-        if time.monotonic() - t0 > RUN_BUDGET_SECONDS:
-            trace.add("orchestrator", "budget_stop", {"phase": "gather", "elapsed": round(time.monotonic() - t0)})
-            break
-        try:                                                 # a failed sub-question must not kill the run
-            if s["source"] == "cross":
+    def _gather_one(sq):                                     # one sub-question = one concurrent agent
+        try:
+            if sq["source"] == "cross":
                 cross_source(condition, store, trace)
             else:
-                analyst.analyze(dict(s), store, trace)
-        except Exception as e:
-            trace.add("orchestrator", "gather_error", {"subq": s.get("question", "")[:80], "error": str(e)[:160]})
+                analyst.analyze(dict(sq), store, trace)
+        except Exception as e:                               # a failed sub-question must not kill the run
+            trace.add("orchestrator", "gather_error", {"subq": sq.get("question", "")[:80], "error": str(e)[:160]})
+
+    # fan out: each sub-question runs in parallel, all writing into the shared (locked) H-MEM
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(subs))) as pool:
+        futures = [pool.submit(_gather_one, sq) for sq in subs]
+        _, pending = concurrent.futures.wait(
+            futures, timeout=max(1.0, RUN_BUDGET_SECONDS - (time.monotonic() - t0)))
+        if pending:
+            trace.add("orchestrator", "budget_stop", {"phase": "gather", "pending": len(pending)})
+    trace.add("orchestrator", "gathered", {"subquestions": len(subs), "evidence": len(store.all())})
 
     evidence = store.all()
     by_id = {r["id"]: r for r in evidence}

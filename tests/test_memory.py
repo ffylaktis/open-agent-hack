@@ -1,5 +1,7 @@
 """H-MEM acceptance tests (offline, deterministic): reject no-source, cross-run recall,
 dedupe, and mission scoping."""
+import threading
+
 import pytest
 
 from agent.memory import Evidence, MemoryStore
@@ -46,3 +48,19 @@ def test_mission_scoping(tmp_path):
     assert other.retrieve(query="rtms anorexia", tags=["rtms"]) == []
     same = MemoryStore(path=path, mission="runA")
     assert same.retrieve(query="rtms anorexia", tags=["rtms"])
+
+
+def test_concurrent_writes(tmp_path):
+    # thread-safety for the parallel sub-question fan-out: 8 agents x 10 distinct writes, none lost
+    store = MemoryStore(path=str(tmp_path / "hmem.json"))
+
+    def worker(w):
+        for i in range(10):
+            store.write(_ev(content=f"c{w}-{i}", sql=f"SELECT {w}-{i}"))
+
+    threads = [threading.Thread(target=worker, args=(w,)) for w in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert len(store.records) == 80
