@@ -60,7 +60,8 @@ def save_sample(res, path=SAMPLE_PATH):
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     data = {"question": res["question"], "condition": res["condition"], "answer": res["answer"],
             "supported": res["supported"], "dropped": res["dropped"], "telemetry": res["telemetry"],
-            "evidence": [{k: r.get(k) for k in ("id", "source", "content")} for r in res["evidence"]],
+            "evidence": [{**{k: r.get(k) for k in ("id", "source", "content")}, "provenance": r.get("provenance", {})}
+                         for r in res["evidence"]],
             "trace": res["trace"].events}
     json.dump(data, open(path, "w", encoding="utf-8"), indent=2, default=str)
     return path

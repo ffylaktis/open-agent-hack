@@ -56,6 +56,9 @@ python smoke_test.py                                      # 3 PASS = Data + Powe
 python -m agent.orchestrator "your clinical-evidence question"
 python -m agent.orchestrator --record            # record a known-good run to data/sample_run.json
 # SAMPLE_MODE=1 in .env  -> replay the recorded run instantly (bulletproof demo, no live calls)
+
+# Web UI (zero extra deps — Python stdlib) — question in; cited answer, rejected claims, receipts out
+python -m agent.web                              # -> http://127.0.0.1:7000  (⚡ instant replay, or ▶ run live)
 ```
 Tests (live integration): `python tests/test_tools.py`, `test_memory.py`, `test_analyst.py`, `test_e2e.py`.
 
