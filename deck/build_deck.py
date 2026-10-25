@@ -261,28 +261,17 @@ else:
 s = prs.slides.add_slide(BLANK)
 _bg(s, WHITE)
 _header(s, "Architecture · Technical", "A real agent, not a pipeline")
-cx, cy, rx, ry = 6.4, 4.5, 4.25, 1.6
-nodes = [("Planner", "decompose"), ("Analyst", "SQL → evidence"),
-         ("cross_source", "trialed × cleared"), ("Reporter", "cite claims"),
-         ("Evaluator", "verify / reject")]
-pos = [(cx + rx * math.sin(math.radians(72 * k)), cy - ry * math.cos(math.radians(72 * k))) for k in range(5)]
-nw, nh = 1.95, 0.88
-# forward flow circulates around the ring (drawn first; nodes cover the arrow tails)
-for k in range(4):
-    _ring_arrow(s, pos[k], pos[k + 1], TEAL)
-# the feedback edge — Evaluator back to Reporter — bowed outside the ring, gold
-_ring_arrow(s, pos[4], pos[3], GOLD, width=2.25, perp=0.62)
-# shared-memory spokes: Analyst & cross_source WRITE to H-MEM; Reporter & Evaluator READ it
-hub = (cx, cy)
-SPOKE = RGBColor(0x9A, 0xA7, 0xB2)
-for ri in (1, 2):
-    _ring_arrow(s, pos[ri], hub, SPOKE, width=1.25, off1=1.0, off2=1.2)
-for ri in (3, 4):
-    _ring_arrow(s, hub, pos[ri], SPOKE, width=1.25, off1=1.2, off2=1.0)
-for k, (lab, sub) in enumerate(nodes):
-    x, y = pos[k]
+labels = [("Planner", "decompose"), ("Analyst", "SQL → evidence"),
+          ("cross_source", "trialed × cleared"), ("Reporter", "cite claims"),
+          ("Evaluator", "verify / reject")]
+n, margin, gap, box_h, row_y = 5, 0.7, 0.46, 1.0, 2.95
+box_w = (13.333 - 2 * margin - (n - 1) * gap) / n
+cxs = []
+for i, (lab, sub) in enumerate(labels):
+    x = margin + i * (box_w + gap)
+    cxs.append(x + box_w / 2)
     hot = lab == "Evaluator"
-    sp = _rect(s, x - nw / 2, y - nh / 2, nw, nh, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    sp = _rect(s, x, row_y, box_w, box_h, TEAL if hot else WHITE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
     if not hot:
         sp.line.color.rgb = TEAL
         sp.line.width = Pt(1.5)
@@ -295,24 +284,36 @@ for k, (lab, sub) in enumerate(nodes):
     p2 = tf.add_paragraph()
     p2.alignment = PP_ALIGN.CENTER
     _run(p2, sub, 9, RGBColor(0xDD, 0xF0, 0xF2) if hot else MUTED)
-# shared memory at the hub
-hm = _rect(s, cx - 1.05, cy - 0.44, 2.1, 0.88, RGBColor(0xFD, 0xF3, 0xE3), shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    if i < n - 1:
+        _rect(s, x + box_w + 0.05, row_y + box_h / 2 - 0.1, gap - 0.1, 0.2, TEAL, shape=MSO_SHAPE.RIGHT_ARROW)
+row_bot = row_y + box_h
+# feedback loop OVER the row: Evaluator -> Reporter (verify / revise)
+top_y = row_y - 0.5
+_conn(s, cxs[4], row_y, cxs[4], top_y, GOLD, arrow=False, width_pt=2.25)
+_conn(s, cxs[4], top_y, cxs[3], top_y, GOLD, arrow=False, width_pt=2.25)
+_conn(s, cxs[3], top_y, cxs[3], row_y, GOLD, arrow=True, width_pt=2.25)
+t = _box(s, cxs[3] - 0.5, top_y - 0.38, cxs[4] - cxs[3] + 1.0, 0.3)
+t.paragraphs[0].alignment = PP_ALIGN.CENTER
+_run(t.paragraphs[0], "✗ revise · re-cite  (≤ MAX_ROUNDS)", 11, GOLD, bold=True)
+# shared-memory lane BELOW the row: gatherers write, consumers read
+mem_y, mem_h = 4.7, 0.8
+mem_l, mem_r = cxs[1] - box_w / 2, cxs[4] + box_w / 2
+hm = _rect(s, mem_l, mem_y, mem_r - mem_l, mem_h, RGBColor(0xFD, 0xF3, 0xE3), shape=MSO_SHAPE.ROUNDED_RECTANGLE)
 hm.line.color.rgb = GOLD
 hm.line.width = Pt(1.25)
 hm.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
 p = hm.text_frame.paragraphs[0]
 p.alignment = PP_ALIGN.CENTER
-_run(p, "H-MEM", 12, GOLD, bold=True)
-p2 = hm.text_frame.add_paragraph()
-p2.alignment = PP_ALIGN.CENTER
-_run(p2, "shared evidence · provenance", 8.5, MUTED)
-t = _box(s, 0.55, 5.35, 2.3, 0.3)
+_run(p, "H-MEM — shared evidence memory  ·  source · provenance", 12.5, GOLD, bold=True)
+SP = RGBColor(0x9A, 0xA7, 0xB2)
+for ci in (1, 2):   # Analyst, cross_source WRITE down into H-MEM
+    _conn(s, cxs[ci], row_bot, cxs[ci], mem_y, SP, arrow=True, width_pt=1.5)
+for ci in (3, 4):   # Reporter, Evaluator READ up from H-MEM
+    _conn(s, cxs[ci], mem_y, cxs[ci], row_bot, SP, arrow=True, width_pt=1.5)
+t = _box(s, 0.7, 5.75, 11.9, 0.5)
 t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "✗ revise & re-cite", 11, GOLD, bold=True)
-t = _box(s, 0.7, 6.55, 11.9, 0.45)
-t.paragraphs[0].alignment = PP_ALIGN.CENTER
-_run(t.paragraphs[0], "A cycle, not a line — roles share evidence through H-MEM (gatherers write · "
-                      "Reporter/Evaluator read); unsupported claims loop back to revise (≤ MAX_ROUNDS).", 12, MUTED)
+_run(t.paragraphs[0], "Left to right, but not a pipeline — specialized roles share a common memory "
+                      "(gatherers write · consumers read), with a verify-and-revise feedback loop.", 12, MUTED)
 _footer(s)
 
 # 6 — Cross-source (two columns)
