@@ -122,15 +122,25 @@ def run(question, mission=None, stress_claims=None, allow_sample=True):
         except Exception as e:
             trace.add("orchestrator", "report_error", {"error": str(e)[:160]})
             break
-        verdicts = []
-        for c in claims:
-            if time.monotonic() - t0 > RUN_BUDGET_SECONDS:   # budget guards evaluate too, not just gather
-                trace.add("orchestrator", "budget_stop", {"phase": "evaluate", "elapsed": round(time.monotonic() - t0)})
-                break
+        def _evaluate_one(c):                                # one claim = one concurrent verification
             try:
-                verdicts.append(evaluator.evaluate(c, by_id, trace))
-            except Exception as e:
+                return evaluator.evaluate(c, by_id, trace)
+            except Exception as e:                           # a failed claim must not kill the round
                 trace.add("orchestrator", "evaluate_error", {"claim": c["text"][:60], "error": str(e)[:160]})
+                return None
+        # claims verify in parallel — independent per-claim (reads shared by_id, writes the locked Trace).
+        # The backend serves calls concurrently, so a round collapses from sum-of-claims to slowest-claim.
+        verdicts = []
+        remaining = RUN_BUDGET_SECONDS - (time.monotonic() - t0)
+        if remaining <= 0:                                   # budget guards evaluate too, not just gather
+            trace.add("orchestrator", "budget_stop", {"phase": "evaluate", "elapsed": round(time.monotonic() - t0)})
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, len(claims))) as pool:
+                futs = [pool.submit(_evaluate_one, c) for c in claims]
+                done, pending = concurrent.futures.wait(futs, timeout=max(1.0, remaining))
+                if pending:
+                    trace.add("orchestrator", "budget_stop", {"phase": "evaluate", "pending": len(pending)})
+                verdicts = [v for v in (f.result() for f in done) if v is not None]
         for v in verdicts:
             if v["supported"]:
                 supported[v["claim"]] = v
