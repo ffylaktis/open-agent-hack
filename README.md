@@ -87,3 +87,10 @@ pyproject.toml · requirements-dev.txt · .github/workflows/ci.yml   # dev tooli
 Runtime: `openai==3.36.1`, `python-dotenv==1.2.4`, `requests==2.34.2` (`requirements.txt`).
 Dev/quality: `ruff==0.17.2`, `pytest==9.1.1` (`requirements-dev.txt`). Zetaris + Meterless run as
 external services (above). No secrets are committed; `.env` is gitignored.
+
+## Pre-existing components
+All agent code in this repository was written during the hackathon. The only pre-existing components
+are standard, unmodified open-source libraries: **`openai`**, **`python-dotenv`**, **`requests`**
+(runtime) and **`ruff`**, **`pytest`** (dev/test). The sponsor platforms — **Zetaris**, **Meterless
+Nightshift**, and **NVIDIA Nemotron** — run as external services. No other pre-existing or third-party
+agent code is included.
